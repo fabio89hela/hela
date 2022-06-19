@@ -12,3 +12,4 @@ pandas
 Flask
 flask-cors
 pyforest
+streamlit
