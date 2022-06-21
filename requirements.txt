@@ -1,9 +1,2 @@
-google.cloud
-google.cloud.bigquery 
-google.cloud.core 
-google.auth 
-google.resumable.media 
-google.api.core 
-google-auth-oauthlib
 streamlit
-google-api-python-client
+panda
