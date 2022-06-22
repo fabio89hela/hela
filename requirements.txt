@@ -2,7 +2,6 @@ streamlit
 pandas
 datetime
 pywhatkit
-time
 pyautogui
 keyboard
 openpyxl
