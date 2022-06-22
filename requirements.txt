@@ -4,3 +4,4 @@ datetime
 keyboard
 openpyxl
 pyautogui
+pywhatkit
