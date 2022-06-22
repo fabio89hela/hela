@@ -5,6 +5,7 @@ import pywhatkit
 import time
 import pyautogui
 import keyboard as k
+import mouseinfo
 
 #pywhatkit.sendwhats_image("+39xxx", "C:\\Users\\tedon\\Desktop\\download.jpg", "Esempio", 10, False, 5)
 st.write("Scegli il file excel")
