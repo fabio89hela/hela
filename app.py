@@ -19,8 +19,8 @@ if uploaded_file is not None:
 		for i in df.index:
 			numero="+39"+str(df["Numero"][i])
 			pywhatkit.sendwhatmsg_instantly(numero, testo1+df["Nome"][i]+testo2,15,False,3)
-			w=pyautogui.size().width
-			h=pyautogui.size().height
-			pyautogui.click(w*0.65,h*0.8)
+			#w=pyautogui.size().width
+			#h=pyautogui.size().height
+			pyautogui.click(1050,700)#w*0.65,h*0.8)
 			k.press_and_release('enter')
 		st.success("Messaggi inviati!")
