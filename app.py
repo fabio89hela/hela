@@ -22,6 +22,6 @@ if uploaded_file is not None:
 			pywhatkit.sendwhatmsg_instantly(numero, testo1+df["Nome"][i]+testo2,15,False,3)
 			#w=pyautogui.size().width
 			#h=pyautogui.size().height
-			pyautogui.click()#w*0.65,h*0.8)
-			k.press_and_release('enter')
+			#pyautogui.click()#w*0.65,h*0.8)
+			#k.press_and_release('enter')
 		st.success("Messaggi inviati!")
