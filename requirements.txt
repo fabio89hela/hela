@@ -5,3 +5,4 @@ pywhatkit
 pyautogui
 keyboard
 openpyxl
+mouseinfo
