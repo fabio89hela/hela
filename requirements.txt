@@ -4,4 +4,3 @@ datetime
 pywhatkit
 keyboard
 openpyxl
-mouseinfo
