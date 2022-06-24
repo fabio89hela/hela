@@ -1,6 +1,4 @@
 import os
-os.environ['DISPLAY']=':0'
-os.environ['XAUTHORITY']='/run/user/1000/gdm/Xauthority'
 import streamlit as st
 import pandas as pd
 import pywhatkit
