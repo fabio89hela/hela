@@ -4,6 +4,7 @@ os.environ['XAUTHORITY']='/run/user/1000/gdm/Xauthority'
 import streamlit as st
 import pandas as pd
 import pywhatkit
+import pyautogui
 from PIL import Image
 
 stringa_xls="C:\\Users\\tedon\\Desktop\\numeri.xlsx"
