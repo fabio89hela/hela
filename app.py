@@ -1,26 +1,26 @@
 import streamlit as st
 import pandas as pd
-import datetime
 import pywhatkit
-import time
-import pyautogui
-import keyboard as k
+from PIL import Image
 
-#pywhatkit.sendwhats_image("+39xxx", "C:\\Users\\tedon\\Desktop\\download.jpg", "Esempio", 10, False, 5)
-st.write("Scegli il file excel")
-uploaded_file = st.file_uploader("Scegli un file")
+stringa_xls="C:\\Users\\tedon\\Desktop\\numeri.xlsx"
+st.title("Benvenuto!")
+st.write("Da questa pagina potrai gestire le tue comunicazioni whatsapp")
+check=st.checkbox("Voglio scegliere il file dei contatti")
+if check==True:
+	uploaded_file=st.file_uploader("Scegli il file excel",['xls','xlsx'])
+else:
+	uploaded_file=stringa_xls
 if uploaded_file is not None:
 	df = pd.read_excel(uploaded_file)
-	st.write(df)
-	testo1 = st.text_input('Testo da inviare prima del nome', '')
-	testo2 = st.text_input('Testo da inviare dopo il nome', '')
-	submit = st.button("Invia")
-	if submit:
-		for i in df.index:
-			numero="+39"+str(df["Numero"][i])
-			pywhatkit.sendwhatmsg_instantly(numero, testo1+df["Nome"][i]+testo2,15,False,3)
-			w=pyautogui.size().width
-			h=pyautogui.size().height
-			pyautogui.click()#w*0.65,h*0.8)
-			k.press_and_release('enter')
-		st.success("Messaggi inviati!")
+	uploaded_image=st.file_uploader("Scegli l'immagine da inviare",['png','jpg','jpeg'])
+	if uploaded_image is not None: 
+		image=Image.open(uploaded_image)
+		st.image(image,width=200)	
+		testo1 = st.text_input('Testo da inviare prima del nome ', '')
+		testo2 = st.text_input('Testo da inviare dopo il nome ', '')
+		submit = st.button("Invia")
+		if submit:
+			for k in range(len(df)):
+				pywhatkit.sendwhats_image("+39"+str(df["Numero"][k]), uploaded_image, testo1+" "+str(df["Nome"][k])+" "+testo2, 25, True, 10) 
+			st.write("Fatto")
