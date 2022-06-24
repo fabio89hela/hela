@@ -25,4 +25,4 @@ if uploaded_file is not None:
 		if submit:
 			for k in range(len(df)):
 				#pywhatkit.sendwhats_image("+39"+str(df["Numero"][k]), uploaded_image, testo1+" "+str(df["Nome"][k])+" "+testo2, 25, True, 10) 
-			st.write("Fatto")
+				st.write("Fatto")
