@@ -1,57 +1,40 @@
 import streamlit as st
-import speech_recognition as sr
-import threading
+import sounddevice as sd
+import numpy as np
 import wave
-import pyaudio
-import os
 from io import BytesIO
+import speech_recognition as sr
 
 # Initialize global variables
 recording = False
-paused = False
 frames = []
-recorder = None
 transcription = ""
 
 def start_recording():
-    global recording, frames, paused, recorder
+    global recording, frames
     recording = True
-    paused = False
     frames = []
-    recorder = pyaudio.PyAudio()
 
-    stream = recorder.open(format=pyaudio.paInt16, 
-                            channels=1, 
-                            rate=44100, 
-                            input=True, 
-                            frames_per_buffer=1024)
+    def callback(indata, frames, time, status):
+        if status:
+            print(status)
+        frames.append(indata.copy())
 
-    def record():
-        global frames, recording, paused
-        while recording:
-            if not paused:
-                data = stream.read(1024)
-                frames.append(data)
-
-        stream.stop_stream()
-        stream.close()
-
-    threading.Thread(target=record).start()
+    sd.InputStream(callback=callback, channels=1, samplerate=44100, dtype='int16').start()
 
 def stop_recording():
-    global recording, recorder
+    global recording
     recording = False
-    if recorder:
-        recorder.terminate()
-        recorder = None
+    sd.stop()
 
 def save_audio():
     output_file = BytesIO()
-    with wave.open(output_file, 'wb') as wf:
-        wf.setnchannels(1)
-        wf.setsampwidth(pyaudio.PyAudio().get_sample_size(pyaudio.paInt16))
-        wf.setframerate(44100)
-        wf.writeframes(b''.join(frames))
+    wf = wave.open(output_file, 'wb')
+    wf.setnchannels(1)
+    wf.setsampwidth(2)  # 2 bytes per sample
+    wf.setframerate(44100)
+    wf.writeframes(b''.join([frame.tobytes() for frame in frames]))
+    wf.close()
     output_file.seek(0)
     return output_file
 
@@ -81,11 +64,11 @@ with col1:
 
 with col2:
     if st.button("Pausa"):
-        paused = True
+        recording = False
 
 with col3:
     if st.button("Riprendi"):
-        paused = False
+        start_recording()
 
 with col4:
     if st.button("Ferma e Salva"):
