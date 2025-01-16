@@ -1,4 +1,0 @@
-streamlit
-sounddevice
-SpeechRecognition
-numpy
