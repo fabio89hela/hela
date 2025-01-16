@@ -2,7 +2,3 @@ streamlit
 sounddevice
 SpeechRecognition
 numpy
-
-# Istruzioni per installare dipendenze di sistema (richiede uno script separato o configurazione CI/CD)
-# Per Ubuntu/Debian, aggiungi quanto segue come documentazione:
-# sudo apt-get update && sudo apt-get install -y portaudio19-dev
