@@ -48,7 +48,7 @@ if st.session_state.timer_running:
     else:
         # Aggiorna la pagina ogni secondo
         time.sleep(1)
-        st.experimental_set_query_params(dummy=f"{time.time()}")  # Triggera un aggiornamento del frontend
+        st.query_params.update({"dummy": str(time.time())})  # Triggera un aggiornamento del frontend
 
     # Pulsante per fermare manualmente il timer
     if st.button("Ferma Timer"):
