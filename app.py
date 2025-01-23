@@ -1,8 +1,8 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
-import time
 from datetime import datetime, timedelta
+import time
 
 # Inizializzazione Firebase
 if not firebase_admin._apps:
@@ -38,10 +38,14 @@ def get_timer():
     if data:
         return {
             'status': data.get('status', 'stopped'),
-            'end_time': datetime.fromisoformat(data['end_time']) if data['end_time'] else None,
-            'last_updated': datetime.fromisoformat(data['last_updated'])
+            'end_time': datetime.fromisoformat(data['end_time']) if data.get('end_time') else None,
+            'last_updated': datetime.fromisoformat(data['last_updated']) if data.get('last_updated') else None
         }
     return {'status': 'stopped', 'end_time': None, 'last_updated': None}
+
+# Inizializza il database se vuoto
+if not timer_ref.get():
+    update_timer('stopped')
 
 # UI Streamlit
 st.title("Timer Sincronizzato con Firebase")
