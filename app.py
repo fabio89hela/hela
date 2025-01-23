@@ -1,9 +1,10 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
+import datetime
 import time
 
-# Inizializza Firebase utilizzando i secrets di Streamlit
+# Inizializza Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate({
         "type": st.secrets["type"],
@@ -21,89 +22,62 @@ if not firebase_admin._apps:
         'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
     })
 
-# Configurazione della pagina
-st.set_page_config(page_title="Timer Condiviso", layout="centered")
-
-# Firebase Database Reference
+# Riferimento al database Firebase
 timer_ref = db.reference("timer")
 
-# Funzione per avviare il timer
-def start_timer(duration):
-    timer_ref.set({
-        "start_time": time.time(),
-        "duration": duration,
-        "running": True
-    })
+# Funzione per ottenere lo stato attuale del timer
+def get_timer_state():
+    state = timer_ref.get()
+    if state is None:
+        return {"running": False, "start_time": None, "elapsed": 0}
+    return state
 
-# Funzione per fermare il timer
-def stop_timer():
-    timer_ref.update({
-        "running": False
-    })
+# Funzione per aggiornare lo stato del timer
+def update_timer_state(state):
+    timer_ref.set(state)
 
-# Funzione per recuperare lo stato del timer
-def get_timer_data():
-    timer_data = timer_ref.get()
-    if timer_data is None:
-        timer_data = {"start_time": None, "duration": 0, "running": False}
-    return timer_data
+# Interfaccia Streamlit
+st.title("Timer Sincronizzato con Firebase")
 
-# Layout dell'app
-st.title("Timer Condiviso")
+# Ottieni lo stato attuale del timer
+timer_state = get_timer_state()
 
-# Recupera lo stato del timer
-timer_data = get_timer_data()
+# Calcola il tempo trascorso
+if timer_state["running"]:
+    start_time = datetime.datetime.fromisoformat(timer_state["start_time"])
+    elapsed_time = (datetime.datetime.now() - start_time).total_seconds() + timer_state["elapsed"]
+else:
+    elapsed_time = timer_state["elapsed"]
 
-# Se il timer non è attivo, mostra l'opzione per avviarlo
-if not timer_data["running"]:
-    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer", key="start_button"):
-        start_timer(duration_minutes * 60)
+# Mostra il timer
+elapsed_time_display = str(datetime.timedelta(seconds=int(elapsed_time)))
+st.header(f"Tempo Trascorso: {elapsed_time_display}")
 
-# Placeholder per il timer attivo
-placeholder = st.empty()
+# Pulsanti per avviare o fermare il timer
+col1, col2 = st.columns(2)
 
-# Pulsante "Ferma Timer" fuori dal ciclo
-stop_pressed = False
-if timer_data["running"]:
-    stop_pressed = st.button("Ferma Timer", key="stop_button")
+with col1:
+    if st.button("Avvia"):
+        if not timer_state["running"]:
+            timer_state["running"] = True
+            timer_state["start_time"] = datetime.datetime.now().isoformat()
+            update_timer_state(timer_state)
 
-# Timer in esecuzione
-if timer_data["running"]:
-    while True:
-        timer_data = get_timer_data()
-        if not timer_data["running"]:
-            placeholder.empty()
-            st.info("Il timer è stato fermato.")
-            break
+with col2:
+    if st.button("Ferma"):
+        if timer_state["running"]:
+            start_time = datetime.datetime.fromisoformat(timer_state["start_time"])
+            timer_state["elapsed"] += (datetime.datetime.now() - start_time).total_seconds()
+            timer_state["running"] = False
+            timer_state["start_time"] = None
+            update_timer_state(timer_state)
 
-        # Calcola il tempo rimanente
-        elapsed_time = time.time() - timer_data["start_time"]
-        remaining_time = max(0, timer_data["duration"] - elapsed_time)
+# Pulsante per azzerare il timer
+if st.button("Reset"):
+    timer_state = {"running": False, "start_time": None, "elapsed": 0}
+    update_timer_state(timer_state)
 
-        # Mostra il timer
-        with placeholder.container():
-            minutes = int(remaining_time // 60)
-            seconds = int(remaining_time % 60)
-            st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
-
-        # Se il pulsante è stato premuto, ferma il timer
-        if stop_pressed:
-            stop_timer()
-            placeholder.empty()
-            st.info("Il timer è stato fermato.")
-            break
-
-        # Quando il timer scade
-        if remaining_time <= 0:
-            st.success("Il timer è scaduto!")
-            stop_timer()
-            placeholder.empty()
-            break
-
-        # Aggiorna la pagina ogni secondo
-        time.sleep(1)
-
-# Mostra messaggio di default quando il timer non è attivo
-if not timer_data["running"]:
-    st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+# Aggiornamento live del timer se in esecuzione
+if timer_state["running"]:
+    time.sleep(1)
+    st.experimental_rerun()
