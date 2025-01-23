@@ -3,7 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 import logging
 
-firebase_admin._http_client.logging.getLogger().setLevel(logging.DEBUG)
+
 
 # Verifica se l'app Firebase è già stata inizializzata
 if not firebase_admin._apps:
@@ -23,10 +23,11 @@ if not firebase_admin._apps:
         'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
     })
 
-# Testa scrittura e lettura
-ref = db.reference('test')
-ref.set({'status': 'connection_successful'})  # Scrive nel database
-print(ref.get())  # Legge dal database
+    firebase_admin._http_client.logging.getLogger().setLevel(logging.DEBUG)
+    # Testa scrittura e lettura
+    ref = db.reference('test')
+    ref.set({'status': 'connection_successful'})  # Scrive nel database
+    print(ref.get())  # Legge dal database
 
 # Riferimento al database
 ref = db.reference('test')
