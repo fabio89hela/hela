@@ -45,6 +45,10 @@ if st.session_state.timer_running:
     if remaining_time <= 0:
         st.success("Il timer è scaduto!")
         stop_timer()
+    else:
+        # Aggiorna la pagina ogni secondo
+        time.sleep(1)
+        st.experimental_set_query_params(dummy=f"{time.time()}")  # Triggera un aggiornamento del frontend
 
     # Pulsante per fermare manualmente il timer
     if st.button("Ferma Timer"):
@@ -53,8 +57,3 @@ if st.session_state.timer_running:
 # Istruzioni per chi accede successivamente
 if not st.session_state.timer_running:
     st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
-
-# Aggiorna la pagina ogni secondo per sincronizzare il timer
-if st.session_state.timer_running:
-    time.sleep(1)
-    st.experimental_rerun()
