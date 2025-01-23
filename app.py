@@ -49,38 +49,55 @@ if timer_data is None:
 # Layout dell'app
 st.title("Timer Condiviso")
 
-# Input per avviare il timer
+# Se il timer non è attivo, mostra l'opzione per avviarlo
 if not timer_data["running"]:
     duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer"):
+    if st.button("Avvia Timer", key="start_button"):
         start_timer(duration_minutes * 60)
 
 # Placeholder per il timer attivo
 placeholder = st.empty()
 
-# Mostra il timer attivo e sincronizzato
+# Pulsante per fermare il timer (fuori dal ciclo)
 if timer_data["running"]:
+    stop_pressed = st.button("Ferma Timer", key="stop_button")
+
+# Timer in esecuzione
+while timer_data["running"]:
+    # Recupera lo stato attuale del timer
+    timer_data = timer_ref.get()
+    if timer_data is None or not timer_data["running"]:
+        placeholder.empty()
+        st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+        break
+
+    # Calcola il tempo rimanente
     elapsed_time = time.time() - timer_data["start_time"]
     remaining_time = max(0, timer_data["duration"] - elapsed_time)
 
+    # Mostra il timer
     with placeholder.container():
         minutes = int(remaining_time // 60)
         seconds = int(remaining_time % 60)
         st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-    # Pulsante per fermare il timer
-    if st.button("Ferma Timer"):
+    # Ferma il timer se il pulsante è stato premuto
+    if stop_pressed:
         stop_timer()
+        placeholder.empty()
+        st.info("Il timer è stato fermato.")
+        break
 
-    # Mostra messaggio quando il timer scade
+    # Quando il timer scade
     if remaining_time <= 0:
         st.success("Il timer è scaduto!")
         stop_timer()
+        placeholder.empty()
+        break
 
-# Messaggio quando il timer non è attivo
+    # Aspetta 1 secondo prima di aggiornare
+    time.sleep(1)
+
+# Mostra messaggio di default quando il timer non è attivo
 if not timer_data["running"]:
     st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
-
-# Aggiorna la pagina ogni 1 secondo per sincronizzazione
-time.sleep(1)
-st.query_params(dummy=str(time.time()))
