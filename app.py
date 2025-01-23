@@ -3,17 +3,19 @@ from firebase_admin import credentials, db
 
 # Credenziali Firebase
 cred = credentials.Certificate({
-    "type": "service_account",
-    "project_id": "aiom---torino",
-    "private_key_id": "00a8acd641b985579bccb3b0deaed42342cb278b",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCXAd6I9OQR7Bs4\n...",
-    "client_email": "firebase-adminsdk-fbsvc@aiom---torino.iam.gserviceaccount.com",
-    "client_id": "111890186751886728605",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40aiom---torino.iam.gserviceaccount.com"
+    "type": st.secrets["type"],
+    "project_id": st.secrets["project_id"],
+    "private_key_id": st.secrets["private_key_id"],
+    "private_key": st.secrets["private_key"].replace("\\n", "\n"),  # Corregge i caratteri \n
+    "client_email": st.secrets["client_email"],
+    "client_id": st.secrets["client_id"],
+    "auth_uri": st.secrets["auth_uri"],
+    "token_uri": st.secrets["token_uri"],
+    "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": st.secrets["client_x509_cert_url"]
 })
+
+st.write(st.secrets)
 
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
