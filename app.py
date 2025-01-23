@@ -93,4 +93,4 @@ if timer_data['status'] == 'running':
     else:
         update_timer('stopped')
         st.warning("Il timer è scaduto!")
-        st.experimental_rerun()
+        st.rerun()
