@@ -57,18 +57,25 @@ timer_data = get_timer_data()
 # Se il timer non è attivo, mostra l'opzione per avviarlo
 if not timer_data["running"]:
     duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer"):
+    if st.button("Avvia Timer", key="start_button"):
         start_timer(duration_minutes * 60)
 
 # Placeholder per il timer attivo
 placeholder = st.empty()
 
+# Pulsante "Ferma Timer" fuori dal ciclo
+stop_pressed = False
+if timer_data["running"]:
+    stop_pressed = st.button("Ferma Timer", key="stop_button")
+
 # Timer in esecuzione
 if timer_data["running"]:
-    stop_button_placeholder = st.empty()
-    while timer_data["running"]:
-        # Recupera lo stato del timer aggiornato
+    while True:
         timer_data = get_timer_data()
+        if not timer_data["running"]:
+            placeholder.empty()
+            st.info("Il timer è stato fermato.")
+            break
 
         # Calcola il tempo rimanente
         elapsed_time = time.time() - timer_data["start_time"]
@@ -80,11 +87,10 @@ if timer_data["running"]:
             seconds = int(remaining_time % 60)
             st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-        # Pulsante per fermare il timer
-        if stop_button_placeholder.button("Ferma Timer"):
+        # Se il pulsante è stato premuto, ferma il timer
+        if stop_pressed:
             stop_timer()
             placeholder.empty()
-            stop_button_placeholder.empty()
             st.info("Il timer è stato fermato.")
             break
 
@@ -93,7 +99,6 @@ if timer_data["running"]:
             st.success("Il timer è scaduto!")
             stop_timer()
             placeholder.empty()
-            stop_button_placeholder.empty()
             break
 
         # Aggiorna la pagina ogni secondo
