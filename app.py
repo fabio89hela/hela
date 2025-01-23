@@ -49,52 +49,47 @@ if timer_data is None:
 # Layout dell'app
 st.title("Timer Condiviso")
 
-if "timer_initialized" not in st.session_state:
-    st.session_state.timer_initialized = False
+# Input per avviare il timer
+if not timer_data["running"]:
+    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
+    if st.button("Avvia Timer"):
+        start_timer(duration_minutes * 60)
 
-# Placeholder per aggiornare dinamicamente il timer
+# Placeholder per aggiornamenti dinamici
 placeholder = st.empty()
 
-if not st.session_state.timer_initialized:
-    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer", key=f"start_button_{time.time()}"):
-        start_timer(duration_minutes * 60)
-        st.session_state.timer_initialized = True
+# Mostra il timer attivo
+if timer_data["running"]:
+    while True:
+        # Recupera nuovamente lo stato del timer dal database
+        timer_data = timer_ref.get()
+        if timer_data is None or not timer_data["running"]:
+            break
 
-while st.session_state.timer_initialized:
-    # Recupera lo stato del timer dal database
-    timer_data = timer_ref.get()
-    if timer_data is None:
-        timer_data = {"start_time": None, "duration": 0, "running": False}
+        # Calcola il tempo rimanente
+        elapsed_time = time.time() - timer_data["start_time"]
+        remaining_time = max(0, timer_data["duration"] - elapsed_time)
 
-    with placeholder.container():
-        if timer_data["running"]:
-            # Calcola il tempo rimanente
-            elapsed_time = time.time() - timer_data["start_time"]
-            remaining_time = max(0, timer_data["duration"] - elapsed_time)
-
-            # Mostra il timer
+        # Aggiorna il timer dinamicamente
+        with placeholder.container():
             minutes = int(remaining_time // 60)
             seconds = int(remaining_time % 60)
             st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-            # Mostra messaggio quando scade
-            if remaining_time <= 0:
-                st.success("Il timer è scaduto!")
+            # Pulsante per fermare il timer
+            if st.button("Ferma Timer"):
                 stop_timer()
-                st.session_state.timer_initialized = False
                 break
 
-            # Pulsante per fermare manualmente il timer (chiave dinamica)
-            if st.button("Ferma Timer", key=f"stop_button_{time.time()}"):
-                stop_timer()
-                st.session_state.timer_initialized = False
-                break
-
-        else:
-            st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
-            st.session_state.timer_initialized = False
+        # Interrompi il timer quando scade
+        if remaining_time <= 0:
+            st.success("Il timer è scaduto!")
+            stop_timer()
             break
 
-    # Aspetta 1 secondo prima di aggiornare
-    time.sleep(1)
+        # Aspetta 1 secondo prima di aggiornare
+        time.sleep(1)
+
+# Messaggio di default quando il timer non è attivo
+if not timer_data["running"]:
+    st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
