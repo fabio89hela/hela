@@ -1,78 +1,30 @@
-import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
-import time
 
-# Inizializza Firebase utilizzando i secrets di Streamlit
-if not firebase_admin._apps:
-    cred = credentials.Certificate({
-        "type": st.secrets["type"],
-        "project_id": st.secrets["project_id"],
-        "private_key_id": st.secrets["private_key_id"],
-        "private_key": st.secrets["private_key"].replace("\\n", "\n"),
-        "client_email": st.secrets["client_email"],
-        "client_id": st.secrets["client_id"],
-        "auth_uri": st.secrets["auth_uri"],
-        "token_uri": st.secrets["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["client_x509_cert_url"]
-    })
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
-    })
+# Credenziali Firebase
+cred = credentials.Certificate({
+    "type": "service_account",
+    "project_id": "aiom---torino",
+    "private_key_id": "00a8acd641b985579bccb3b0deaed42342cb278b",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCXAd6I9OQR7Bs4\n...",
+    "client_email": "firebase-adminsdk-fbsvc@aiom---torino.iam.gserviceaccount.com",
+    "client_id": "111890186751886728605",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40aiom---torino.iam.gserviceaccount.com"
+})
 
-# Configurazione della pagina
-st.set_page_config(page_title="Timer Condiviso", layout="centered")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
+})
 
-# Firebase Database Reference
-timer_ref = db.reference("timer")
+# Riferimento al database
+ref = db.reference('test')
 
-# Funzione per avviare il timer
-def start_timer(duration):
-    timer_ref.set({
-        "start_time": time.time(),
-        "duration": duration,
-        "running": True
-    })
+# Prova di scrittura
+ref.set({'status': 'connection_successful'})
 
-# Funzione per fermare il timer
-def stop_timer():
-    timer_ref.update({
-        "running": False
-    })
-
-# Ottieni stato attuale del timer dal database
-timer_data = timer_ref.get()
-if timer_data is None:
-    timer_data = {"start_time": None, "duration": 0, "running": False}
-
-# Layout dell'app
-st.title("Timer Condiviso")
-
-if not timer_data["running"]:
-    # Input per impostare il timer
-    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer"):
-        start_timer(duration_minutes * 60)
-
-if timer_data["running"]:
-    # Calcola tempo rimanente
-    elapsed_time = time.time() - timer_data["start_time"]
-    remaining_time = max(0, timer_data["duration"] - elapsed_time)
-
-    # Mostra il timer
-    minutes = int(remaining_time // 60)
-    seconds = int(remaining_time % 60)
-    st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
-
-    # Fermare il timer
-    if st.button("Ferma Timer"):
-        stop_timer()
-
-    # Mostra messaggio quando scade
-    if remaining_time <= 0:
-        st.success("Il timer è scaduto!")
-        stop_timer()
-
-if not timer_data["running"]:
-    st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+# Prova di lettura
+data = ref.get()
+print("Dati letti dal database:", data)
