@@ -1,67 +1,60 @@
-let recorder, audioBlob;
-const transcriptionBox = document.getElementById('transcription');
-const startButton = document.getElementById('start');
-const pauseButton = document.getElementById('pause');
-const resumeButton = document.getElementById('resume');
-const stopButton = document.getElementById('stop');
+import streamlit as st
+import time
 
-// Recorder setup
-navigator.mediaDevices.getUserMedia({ audio: true })
-  .then(stream => {
-    const chunks = [];
-    recorder = new MediaRecorder(stream);
+# Configurazione della pagina
+st.set_page_config(page_title="Timer Condiviso", layout="centered")
 
-    recorder.ondataavailable = e => chunks.push(e.data);
+# Titolo
+st.title("Timer Condiviso")
 
-    recorder.onstop = async () => {
-      audioBlob = new Blob(chunks, { type: 'audio/webm' });
+# Inizializzazione dello stato del timer
+if "timer_running" not in st.session_state:
+    st.session_state.timer_running = False
+    st.session_state.start_time = None
+    st.session_state.remaining_time = 0
 
-      // Convert audioBlob to FormData
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'recording.webm');
+# Funzione per avviare il timer
+def start_timer(duration):
+    st.session_state.timer_running = True
+    st.session_state.start_time = time.time()
+    st.session_state.remaining_time = duration
 
-      // Send audio to the Netlify Function
-      try {
-        const response = await fetch('/.netlify/functions/transcribe', {
-          method: 'POST',
-          body: formData,
-        });
+# Funzione per fermare il timer
+def stop_timer():
+    st.session_state.timer_running = False
+    st.session_state.start_time = None
+    st.session_state.remaining_time = 0
 
-        const result = await response.json();
-        if (result.transcription) {
-          transcriptionBox.value = result.transcription;
-        } else {
-          console.error('No transcription received:', result);
-        }
-      } catch (error) {
-        console.error('Error calling transcription function:', error);
-      }
-    };
-  });
+# Input per la durata del timer (solo per chi lo avvia)
+if not st.session_state.timer_running:
+    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
+    if st.button("Avvia Timer"):
+        start_timer(duration_minutes * 60)
 
-startButton.addEventListener('click', () => {
-  recorder.start();
-  startButton.disabled = true;
-  pauseButton.disabled = false;
-  stopButton.disabled = false;
-});
+# Timer attivo
+if st.session_state.timer_running:
+    elapsed_time = time.time() - st.session_state.start_time
+    remaining_time = max(0, st.session_state.remaining_time - elapsed_time)
 
-pauseButton.addEventListener('click', () => {
-  recorder.pause();
-  pauseButton.disabled = true;
-  resumeButton.disabled = false;
-});
+    # Visualizzazione del timer
+    minutes = int(remaining_time // 60)
+    seconds = int(remaining_time % 60)
+    st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-resumeButton.addEventListener('click', () => {
-  recorder.resume();
-  pauseButton.disabled = false;
-  resumeButton.disabled = true;
-});
+    # Controllo se il timer è scaduto
+    if remaining_time <= 0:
+        st.success("Il timer è scaduto!")
+        stop_timer()
 
-stopButton.addEventListener('click', () => {
-  recorder.stop();
-  startButton.disabled = false;
-  pauseButton.disabled = true;
-  resumeButton.disabled = true;
-  stopButton.disabled = true;
-});
+    # Pulsante per fermare manualmente il timer
+    if st.button("Ferma Timer"):
+        stop_timer()
+
+# Istruzioni per chi accede successivamente
+if not st.session_state.timer_running:
+    st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+
+# Aggiorna la pagina ogni secondo per sincronizzare il timer
+if st.session_state.timer_running:
+    time.sleep(1)
+    st.experimental_rerun()
