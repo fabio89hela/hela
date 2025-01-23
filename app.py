@@ -1,59 +1,67 @@
 import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, db
 import time
+
+# Configurazione Firebase
+if not firebase_admin._apps:
+    cred = credentials.Certificate("path/to/your-firebase-credentials.json")
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://<your-database-name>.firebaseio.com/'
+    })
 
 # Configurazione della pagina
 st.set_page_config(page_title="Timer Condiviso", layout="centered")
 
-# Titolo
-st.title("Timer Condiviso")
-
-# Inizializzazione dello stato del timer
-if "timer_running" not in st.session_state:
-    st.session_state.timer_running = False
-    st.session_state.start_time = None
-    st.session_state.remaining_time = 0
+# Firebase Database Reference
+timer_ref = db.reference("timer")
 
 # Funzione per avviare il timer
 def start_timer(duration):
-    st.session_state.timer_running = True
-    st.session_state.start_time = time.time()
-    st.session_state.remaining_time = duration
+    timer_ref.set({
+        "start_time": time.time(),
+        "duration": duration,
+        "running": True
+    })
 
 # Funzione per fermare il timer
 def stop_timer():
-    st.session_state.timer_running = False
-    st.session_state.start_time = None
-    st.session_state.remaining_time = 0
+    timer_ref.update({
+        "running": False
+    })
 
-# Input per la durata del timer (solo per chi lo avvia)
-if not st.session_state.timer_running:
+# Ottieni stato attuale del timer dal database
+timer_data = timer_ref.get()
+if timer_data is None:
+    timer_data = {"start_time": None, "duration": 0, "running": False}
+
+# Layout dell'app
+st.title("Timer Condiviso")
+
+if not timer_data["running"]:
+    # Input per impostare il timer
     duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
     if st.button("Avvia Timer"):
         start_timer(duration_minutes * 60)
 
-# Timer attivo
-if st.session_state.timer_running:
-    elapsed_time = time.time() - st.session_state.start_time
-    remaining_time = max(0, st.session_state.remaining_time - elapsed_time)
+if timer_data["running"]:
+    # Calcola tempo rimanente
+    elapsed_time = time.time() - timer_data["start_time"]
+    remaining_time = max(0, timer_data["duration"] - elapsed_time)
 
-    # Visualizzazione del timer
+    # Mostra il timer
     minutes = int(remaining_time // 60)
     seconds = int(remaining_time % 60)
     st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-    # Controllo se il timer è scaduto
-    if remaining_time <= 0:
-        st.success("Il timer è scaduto!")
-        stop_timer()
-    else:
-        # Aggiorna la pagina ogni secondo
-        time.sleep(1)
-        st.query_params.update({"dummy": str(time.time())})  # Triggera un aggiornamento del frontend
-
-    # Pulsante per fermare manualmente il timer
+    # Fermare il timer
     if st.button("Ferma Timer"):
         stop_timer()
 
-# Istruzioni per chi accede successivamente
-if not st.session_state.timer_running:
+    # Mostra messaggio quando scade
+    if remaining_time <= 0:
+        st.success("Il timer è scaduto!")
+        stop_timer()
+
+if not timer_data["running"]:
     st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
