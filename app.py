@@ -73,23 +73,23 @@ with col1:
         end_time = datetime.now() + timedelta(seconds=time_input)
         update_timer('running', end_time)
         st.success("Timer avviato!")
-        st.experimental_rerun()
+        st.rerun()
 
 with col2:
     if st.button("Ferma Timer"):
         update_timer('stopped')
         st.success("Timer fermato!")
-        st.experimental_rerun()
+        st.rerun()
 
 with col3:
     if st.button("Aggiorna Stato"):
-        st.experimental_rerun()
+        st.rerun()
 
 # Aggiornamento in tempo reale
 if timer_data['status'] == 'running':
     if remaining_time > 0:
         time.sleep(1)
-        st.experimental_rerun()
+        st.rerun()
     else:
         update_timer('stopped')
         st.warning("Il timer è scaduto!")
