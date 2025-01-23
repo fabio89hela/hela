@@ -28,8 +28,14 @@ timer_ref = db.reference("timer")
 # Funzione per ottenere lo stato attuale del timer
 def get_timer_state():
     state = timer_ref.get()
+    # Aggiungi valori predefiniti per le chiavi mancanti
     if state is None:
-        return {"running": False, "start_time": None, "elapsed": 0}
+        state = {"running": False, "start_time": None, "elapsed": 0}
+        update_timer_state(state)
+    else:
+        state.setdefault("running", False)
+        state.setdefault("start_time", None)
+        state.setdefault("elapsed", 0)
     return state
 
 # Funzione per aggiornare lo stato del timer
