@@ -57,7 +57,7 @@ placeholder = st.empty()
 
 if not st.session_state.timer_initialized:
     duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
-    if st.button("Avvia Timer", key="start_button"):
+    if st.button("Avvia Timer", key=f"start_button_{time.time()}"):
         start_timer(duration_minutes * 60)
         st.session_state.timer_initialized = True
 
@@ -85,8 +85,8 @@ while st.session_state.timer_initialized:
                 st.session_state.timer_initialized = False
                 break
 
-            # Pulsante per fermare manualmente il timer (con un identificatore unico)
-            if st.button("Ferma Timer", key="stop_button"):
+            # Pulsante per fermare manualmente il timer (chiave dinamica)
+            if st.button("Ferma Timer", key=f"stop_button_{time.time()}"):
                 stop_timer()
                 st.session_state.timer_initialized = False
                 break
