@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "multiparty": "^4.2.3",
-    "openai": "^4.78.1"
-  }
-}
