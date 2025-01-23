@@ -25,9 +25,12 @@ if not firebase_admin._apps:
 
     firebase_admin._http_client.logging.getLogger().setLevel(logging.DEBUG)
     # Testa scrittura e lettura
-    ref = db.reference('test')
-    ref.set({'status': 'connection_successful'})  # Scrive nel database
-    print(ref.get())  # Legge dal database
+    ref = db.reference("test")
+    try:
+        ref.set({"status": "connection_successful"})  # Scrive nel database
+        print(ref.get())  # Legge dal database
+    except Exception as e:
+        print("Errore:", e)
 
 # Riferimento al database
 ref = db.reference('test')
