@@ -18,7 +18,7 @@ if not firebase_admin._apps:
         "client_x509_cert_url": st.secrets["client_x509_cert_url"]
     })
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://<your-database-name>.firebaseio.com/'
+        'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
     })
 
 # Configurazione della pagina
