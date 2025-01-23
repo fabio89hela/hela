@@ -20,6 +20,11 @@ if not firebase_admin._apps:
         'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
     })
 
+# Testa scrittura e lettura
+ref = db.reference('test')
+ref.set({'status': 'connection_successful'})  # Scrive nel database
+print(ref.get())  # Legge dal database
+
 # Riferimento al database
 ref = db.reference('test')
 
