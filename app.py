@@ -83,4 +83,4 @@ if not timer_data["running"]:
 
 # Aggiorna la pagina ogni 1 secondo per sincronizzazione
 time.sleep(1)
-st.experimental_set_query_params(dummy=str(time.time()))
+st.query_params(dummy=str(time.time()))
