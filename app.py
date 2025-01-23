@@ -1,6 +1,9 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, db
+import logging
+
+firebase_admin._http_client.logging.getLogger().setLevel(logging.DEBUG)
 
 # Verifica se l'app Firebase è già stata inizializzata
 if not firebase_admin._apps:
