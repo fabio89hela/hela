@@ -58,47 +58,36 @@ if not timer_data["running"]:
 # Placeholder per mostrare il timer in tempo reale
 placeholder = st.empty()
 
-# Timer in esecuzione
-if timer_data["running"]:
-    stop_button_placeholder = st.empty()
-    while True:
-        # Recupera lo stato attuale del timer
-        timer_data = timer_ref.get()
-        if timer_data is None or not timer_data["running"]:
-            placeholder.empty()
-            stop_button_placeholder.empty()
-            st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
-            break
+# Controllo del timer in tempo reale
+while True:
+    # Recupera lo stato del timer dal database
+    timer_data = timer_ref.get()
+    if timer_data is None or not timer_data["running"]:
+        placeholder.empty()
+        st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+        break
 
-        # Calcola il tempo rimanente
-        elapsed_time = time.time() - timer_data["start_time"]
-        remaining_time = max(0, timer_data["duration"] - elapsed_time)
+    # Calcola il tempo rimanente
+    elapsed_time = time.time() - timer_data["start_time"]
+    remaining_time = max(0, timer_data["duration"] - elapsed_time)
 
-        # Mostra il tempo rimanente
-        with placeholder.container():
-            minutes = int(remaining_time // 60)
-            seconds = int(remaining_time % 60)
-            st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
+    # Aggiorna il timer in tempo reale
+    with placeholder.container():
+        minutes = int(remaining_time // 60)
+        seconds = int(remaining_time % 60)
+        st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
 
-        # Ferma il timer se l'utente preme il pulsante
-        if stop_button_placeholder.button("Ferma Timer"):
+        # Mostra il pulsante per fermare il timer
+        if st.button("Ferma Timer"):
             stop_timer()
-            placeholder.empty()
-            stop_button_placeholder.empty()
-            st.info("Il timer è stato fermato.")
             break
 
-        # Quando il timer scade
+        # Se il timer scade
         if remaining_time <= 0:
             st.success("Il timer è scaduto!")
             stop_timer()
-            placeholder.empty()
-            stop_button_placeholder.empty()
             break
 
-        # Aspetta 1 secondo prima di aggiornare
-        time.sleep(1)
-
-# Mostra messaggio di default quando il timer non è attivo
-if not timer_data["running"]:
-    st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
+    # Attendi 1 secondo prima di controllare nuovamente Firebase
+    time.sleep(1)
+    st.experimental_rerun()
