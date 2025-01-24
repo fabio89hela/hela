@@ -43,7 +43,7 @@ st.markdown("""
 
 a=4
 
-col1, col2, col3 = st.columns([1, 2, 1,2])
+col1, col2, col3, col4 = st.columns([1, 2, 1,2])
 with col2:
     st.image("logo.jpg")
 
