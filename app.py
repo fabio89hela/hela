@@ -45,6 +45,8 @@ a=4
 
 col1, col2,col3 = st.columns([2,0.5,4])
 with col1:
+    st.write("")
+    st.write("")
     st.image("logo.jpg")
 
 with col3:
