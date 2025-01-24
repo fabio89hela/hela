@@ -12,6 +12,4 @@ elif a==2:
     st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=625-241ca8173c27da5c6db93d8028cfe264")
 elif a==1:
     st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=624-3feefa2ef9a347a0423cc694246871c7")
-time.sleep(1)
-st.rerun()
     
