@@ -45,7 +45,7 @@ a=4
 
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
-    st.image("logo.jpg")
+    st.image("logo.jpg",widht=400)
 
     st.write("")
     if a==0: #riscaldamento
