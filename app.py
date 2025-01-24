@@ -43,11 +43,11 @@ st.markdown("""
 
 a=4
 
-col1, col2, col3, col4 = st.columns([1, 2, 1,2])
-with col2:
+col1, col2 = st.columns(2)
+with col1:
     st.image("logo.jpg")
 
-with col4:
+with col2:
     st.write("")
     if a==0: #riscaldamento
         st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
