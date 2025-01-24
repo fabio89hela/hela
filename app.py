@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 
-a=0
+a=1
 
 st.title("AIOM - TORINO")
 if a==0:
