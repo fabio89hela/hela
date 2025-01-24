@@ -156,15 +156,9 @@ with col3:
                         st.success("Il timer è scaduto!")
                         stop_timer()
                         st.session_state.timer_initialized = False
-                        st.markdown(
-                        """
-                        <audio autoplay>     
-                            <source src="https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing" type="audio/mp3">
-                            Il tuo browser non supporta l'elemento audio.
-                        </audio>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                        audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"#"https://drive.google.com/uc?id=1A2B3C4D5E6F7G8H9I0&export=download"
+                        # Riproduci l'audio
+                        st.audio(audio_url, format="audio/mp3")    
                 else:
                     st.session_state.timer_initialized = False
 
