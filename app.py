@@ -157,8 +157,6 @@ with col3:
                         stop_timer()
                         st.session_state.timer_initialized = False
                         audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"#"https://drive.google.com/uc?id=1A2B3C4D5E6F7G8H9I0&export=download"
-                        # Riproduci l'audio
-                        st.audio(audio_url, format="audio/mp3")    
                 else:
                     st.session_state.timer_initialized = False
 
@@ -172,5 +170,5 @@ with col3:
             duration = timer_data.get("duration", 0)
 
             # Aspetta 1 secondo prima di aggiornare
-            time.sleep(0.8)
+            time.sleep(0.2)
             st.rerun()
