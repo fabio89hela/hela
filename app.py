@@ -155,8 +155,8 @@ with col2:
                         st.session_state.timer_initialized = False
                         st.markdown(
                         """
-                        <audio autoplay>
-                            <source src="https://raw.githubusercontent.com/fabio89hela/hela/raw/refs/heads/main/audio.mp3" type="audio/mp3">
+                        <audio autoplay>     
+                            <source src="https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing" type="audio/mp3">
                             Il tuo browser non supporta l'elemento audio.
                         </audio>
                         """,
