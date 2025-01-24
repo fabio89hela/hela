@@ -3,8 +3,6 @@ import time
 import firebase_admin
 from firebase_admin import credentials, db
 
-st.set_page_config(layout="centered")
-
 # Funzione HTML per pulsanti personalizzati
 def custom_button(label, key):
     button_html = f"""
@@ -45,7 +43,10 @@ st.markdown("""
 
 a=4
 
-st.image("logo.jpg",width=400)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.image("logo.jpg")
+
 st.write("")
 if a==0: #riscaldamento
     st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
