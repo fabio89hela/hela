@@ -43,7 +43,7 @@ st.markdown("""
 
 a=4
 
-st.image("logo.jpg",width=800)
+st.image("logo.jpg",width=600)
 
 if a==0: #riscaldamento
     st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
