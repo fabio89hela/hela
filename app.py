@@ -153,7 +153,6 @@ elif a==4: #timer
                     unsafe_allow_html=True
                 )
             else:
-                st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
                 st.session_state.timer_initialized = False
 
         # Ottieni nuovamente lo stato del timer dal database
