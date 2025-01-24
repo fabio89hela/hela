@@ -72,9 +72,6 @@ elif a==4: #timer
             'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
         })
 
-    # Configurazione della pagina
-    st.set_page_config(page_title="Timer Condiviso", layout="centered")
-
     # Firebase Database Reference
     timer_ref = db.reference("timer")
 
