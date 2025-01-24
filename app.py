@@ -7,5 +7,6 @@ if a==0:
         a=1
 else:
     st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=624-3feefa2ef9a347a0423cc694246871c7")
+time.sleep(1)
 st.rerun()
     
