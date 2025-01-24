@@ -3,6 +3,24 @@ import time
 import firebase_admin
 from firebase_admin import credentials, db
 
+# Aggiungi stile CSS per personalizzare i pulsanti
+st.markdown("""
+    <style>
+    button[data-testid="stButton"] {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        background-color: #ff4b4b;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+    }
+    button[data-testid="stButton"]:hover {
+        background-color: #ff1a1a;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 a=0
 
 st.title("AIOM - TORINO")
@@ -91,6 +109,15 @@ elif a==4: #timer
                 minutes = int(remaining_time // 60)
                 seconds = int(remaining_time % 60)
                 st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
+
+                st.markdown(
+                f"""
+                <p style="font-size: 48px; font-weight: bold; text-align: center; color: #ff4b4b;">
+                Tempo rimanente: {minutes:02d}:{seconds:02d}
+                </p>
+                """,
+                unsafe_allow_html=True
+                )
 
                 # Fermare il timer
                 if st.button("Ferma Timer", key="stop_button"):
