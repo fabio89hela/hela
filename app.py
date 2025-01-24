@@ -3,6 +3,8 @@ import time
 import firebase_admin
 from firebase_admin import credentials, db
 
+st.set_page_config(layout="centered")
+
 # Funzione HTML per pulsanti personalizzati
 def custom_button(label, key):
     button_html = f"""
