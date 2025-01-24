@@ -43,7 +43,7 @@ st.markdown("""
 
 a=4
 
-st.image("logo.jpg")
+st.image("logo.jpg",width=0.4)
 
 if a==0: #riscaldamento
     st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
@@ -89,9 +89,6 @@ elif a==4: #timer
             "running": False
         })
 
-    # Layout dell'app
-    st.title("Timer Condiviso")
-
     # Ottieni stato attuale del timer dal database
     timer_data = timer_ref.get()
     if not timer_data:
@@ -123,11 +120,6 @@ elif a==4: #timer
                 elapsed_time = time.time() - start_time
                 remaining_time = max(0, duration - elapsed_time)
 
-                # Mostra il timer
-                minutes = int(remaining_time // 60)
-                seconds = int(remaining_time % 60)
-                st.subheader(f"Tempo rimanente: {minutes:02d}:{seconds:02d}")
-
                 st.markdown(
                 f"""
                 <p style="font-size: 48px; font-weight: bold; text-align: center; color: #ff4b4b;">
@@ -147,7 +139,16 @@ elif a==4: #timer
                     st.success("Il timer è scaduto!")
                     stop_timer()
                     st.session_state.timer_initialized = False
-
+                                 # Aggiungi l'audio
+                st.markdown(
+                    """
+                    <audio autoplay>
+                        <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+                        Il tuo browser non supporta l'elemento audio.
+                    </audio>
+                    """,
+                    unsafe_allow_html=True
+                )
             else:
                 st.info("Il timer non è attivo. Puoi avviarne uno nuovo.")
                 st.session_state.timer_initialized = False
