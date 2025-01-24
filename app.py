@@ -1,4 +1,6 @@
 import streamlit as st
+import time
+
 a=0
 
 st.title("AIOM - TORINO")
