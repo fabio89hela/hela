@@ -122,7 +122,8 @@ with col2:
                     # Calcola tempo rimanente
                     elapsed_time = time.time() - start_time
                     remaining_time = max(0, duration - elapsed_time)
-
+                    minutes = int(remaining_time // 60)
+                    seconds = int(remaining_time % 60)
                     st.markdown(
                     f"""
                     <p style="font-size: 48px; font-weight: bold; text-align: center; color: #ff4b4b;">
