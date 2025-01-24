@@ -43,8 +43,11 @@ st.markdown("""
 
 a=0
 
-st.title("AIOM - TORINO")
 st.image("logo.jpg")
+
+st.title("AIOM - TORINO")
+
+
 if a==0: #riscaldamento
     st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
 elif a==1: #nuoto
