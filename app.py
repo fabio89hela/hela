@@ -156,7 +156,7 @@ with col2:
                         st.markdown(
                         """
                         <audio autoplay>
-                            <source src="https://github.com/fabio89hela/hela/raw/refs/heads/main/audio.mp3" type="mp3">
+                            <source src="https://raw.githubusercontent.com/fabio89hela/hela/raw/refs/heads/main/audio.mp3" type="audio/mp3">
                             Il tuo browser non supporta l'elemento audio.
                         </audio>
                         """,
