@@ -3,6 +3,26 @@ import time
 import firebase_admin
 from firebase_admin import credentials, db
 
+# Funzione HTML per pulsanti personalizzati
+def custom_button(label, key):
+    button_html = f"""
+    <form action="" method="POST">
+        <button type="submit" style="
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            text-align: center;
+        ">{label}</button>
+    </form>
+    """
+    submitted = st.markdown(button_html, unsafe_allow_html=True)
+    return submitted
+
 # Aggiungi stile CSS per personalizzare i pulsanti
 st.markdown("""
     <style>
@@ -24,6 +44,7 @@ st.markdown("""
 a=0
 
 st.title("AIOM - TORINO")
+st.image("logo.jpg")
 if a==0: #riscaldamento
     st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=623-8bb7fe84d0c4823efd469dfbf2dccc13")
 elif a==1: #nuoto
