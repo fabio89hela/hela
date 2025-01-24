@@ -7,7 +7,7 @@ from firebase_admin import credentials, db
 st.markdown("""
     <style>
     button[data-testid="stButton"] {
-        font-size: 20px;
+        font-size: 40px;
         font-weight: bold;
         color: white;
         background-color: #ff4b4b;
