@@ -124,14 +124,24 @@ with col2:
                     remaining_time = max(0, duration - elapsed_time)
                     minutes = int(remaining_time // 60)
                     seconds = int(remaining_time % 60)
-                    st.markdown(
+                    if seconds<=10:
+                        st.markdown(
                     f"""
-                    <p style="font-size: 48px; font-weight: bold; text-align: center; color: #ff4b4b;">
+                    <p style="font-size: 48px; font-weight: bold; text-align: center;color: #ff4b4b;">
                     Tempo rimanente: {minutes:02d}:{seconds:02d}
                     </p>
                     """,
                     unsafe_allow_html=True
-                    )
+                        )
+                    else:
+                        st.markdown(
+                    f"""
+                    <p style="font-size: 48px; font-weight: bold; text-align: center;">
+                    Tempo rimanente: {minutes:02d}:{seconds:02d}
+                    </p>
+                    """,
+                    unsafe_allow_html=True
+                        )
     
                     # Fermare il timer
                     if st.button("Ferma Timer", key="stop_button"):
@@ -143,11 +153,10 @@ with col2:
                         st.success("Il timer è scaduto!")
                         stop_timer()
                         st.session_state.timer_initialized = False
-                                     # Aggiungi l'audio
-                    st.markdown(
+                        st.markdown(
                         """
                         <audio autoplay>
-                            <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+                            <source src="audio.mp3" type="mp3">
                             Il tuo browser non supporta l'elemento audio.
                         </audio>
                         """,
@@ -166,5 +175,5 @@ with col2:
             duration = timer_data.get("duration", 0)
 
             # Aspetta 1 secondo prima di aggiornare
-            time.sleep(1)
+            time.sleep(0.8)
             st.rerun()
