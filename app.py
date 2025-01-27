@@ -43,7 +43,7 @@ st.markdown("""
 
 a=2
 
-col1, col2,col3 = st.columns([2,0.5,4])
+col1, col2,col3 = st.columns([2,0.5,2])
 with col1:
     st.write("")
     st.write("")
