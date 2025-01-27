@@ -47,7 +47,7 @@ col1, col2,col3 = st.columns([2,0.5,4])
 with col1:
     st.write("")
     st.write("")
-    st.image("logo.jpg")
+    st.image("logo.jpg",width=400)
 
 with col3:
     st.write("")
