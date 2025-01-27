@@ -41,7 +41,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=0
+a=4
 
 col1, col2,col3 = st.columns([2,0.5,2])
 with col1:
@@ -76,6 +76,12 @@ with col3:
         st.write("")
         st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=627-5a7b95839f42e8beadd1c3aa7bfcf7bd")
     elif a==3: #corsa
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
         st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=624-3feefa2ef9a347a0423cc694246871c7")
     elif a==4: #timer
         # Inizializza Firebase utilizzando i secrets di Streamlit
