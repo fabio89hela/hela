@@ -63,7 +63,7 @@ with col3:
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("Ciclismo", "https://game.helaglobe.com/main/gameview/?game=636-4b29aa131dde67a6e8e1e84838eb77f4")
+  st.link_button("Ciclismo", "https://game.helaglobe.com/main/gameview/?game=639-1cebeab015b906a88198e4c50a3e3d65")
 with col4:
   st.write("")
   st.write("")
