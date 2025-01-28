@@ -136,7 +136,7 @@ if a==4: #timer
 
         if not st.session_state.timer_initialized:
             duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
-            if st.button("Avvia Timer"):
+            if st.button("Avvia Timer"): 
                 start_timer(duration_minutes * 60)
                 st.session_state.timer_initialized = True
 
