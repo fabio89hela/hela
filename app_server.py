@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import time
 import firebase_admin
@@ -197,4 +195,3 @@ if a==4: #timer
             # Aspetta 1 secondo prima di aggiornare
             time.sleep(0.05)
             st.rerun()
-
