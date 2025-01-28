@@ -154,8 +154,8 @@ if a==4: #timer
                     if seconds<=10:
                         st.markdown(
                         f"""
-                        <p style="font-size: 65px; font-weight: bold; text-align: center;color: #ff4b4b;">
-                        Tempo rimanente: {minutes:02d}:{seconds:02d}
+                        <p style="font-size: 70px; font-weight: bold; text-align: center;color: #ff4b4b;">
+                        Tempo rimanente: {seconds:02d}
                         </p>
                         """,
                         unsafe_allow_html=True
