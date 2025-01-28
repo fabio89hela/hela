@@ -51,6 +51,9 @@ with col1:
 
 with col3:
     st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
     if a==0: #riscaldamento
         st.write("")
         st.write("")
