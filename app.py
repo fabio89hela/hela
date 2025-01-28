@@ -41,7 +41,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=4
+a=0
 
 col1, col2,col3 = st.columns([2,0.5,2])
 with col1:
@@ -58,7 +58,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=629-a55cd1dd64522abca61a4ee6b419f004")
+        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=633-d8cec02cd4de9dffc72cf3e43bfb4305")
     elif a==1: #nuoto
         st.write("")
         st.write("")
