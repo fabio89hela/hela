@@ -153,22 +153,22 @@ if a==4: #timer
                     seconds = int(remaining_time % 60)
                     if seconds<=10:
                         st.markdown(
-                    f"""
-                    <p style="font-size: 52px; font-weight: bold; text-align: center;color: #ff4b4b;">
-                    Tempo rimanente: {minutes:02d}:{seconds:02d}
-                    </p>
-                    """,
-                    unsafe_allow_html=True
-                        )
+                        f"""
+                        <p style="font-size: 52px; font-weight: bold; text-align: center;color: #ff4b4b;">
+                        Tempo rimanente: {minutes:02d}:{seconds:02d}
+                        </p>
+                        """,
+                        unsafe_allow_html=True
+                            )
                     else:
                         st.markdown(
-                    f"""
-                    <p style="font-size: 65px; font-weight: bold; text-align: center;">
-                    Tempo rimanente: {minutes:02d}:{seconds:02d}
-                    </p>
-                    """,
-                    unsafe_allow_html=True
-                        )
+                        f"""
+                        <p style="font-size: 65px; font-weight: bold; text-align: center;">
+                        Tempo rimanente: {minutes:02d}:{seconds:02d}
+                        </p>
+                        """,
+                        unsafe_allow_html=True
+                            )
     
                     # Fermare il timer
                     if st.button("Ferma Timer", key="stop_button"):
