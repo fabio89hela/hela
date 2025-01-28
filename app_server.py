@@ -46,15 +46,27 @@ st.markdown("""
 st.image("logo.jpg",width=400)
 
 col1, col2,col3, col4 = st.columns([1,1,1,1])
-st.write("")
-st.write("")
-st.write("")
-st.write("")
 with col1:
+  st.write("")
+  st.write("")
+  st.write("")
+  st.write("")
   st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=634-a56cc3d28c8361f192995fe925fc7f92")
 with col2:
+  st.write("")
+  st.write("")
+  st.write("")
+  st.write("")
   st.link_button("Nuoto", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2")
 with col3:
+  st.write("")
+  st.write("")
+  st.write("")
+  st.write("")
   st.link_button("Ciclismo", "https://game.helaglobe.com/main/gameview/?game=636-4b29aa131dde67a6e8e1e84838eb77f4")
 with col4:
+  st.write("")
+  st.write("")
+  st.write("")
+  st.write("")
   st.link_button("Corsa", "https://game.helaglobe.com/main/gameview/?game=637-5615a07578e368c77ad332f6fe36bc2b")
