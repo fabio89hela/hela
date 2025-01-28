@@ -74,7 +74,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=636-4b29aa131dde67a6e8e1e84838eb77f4")
+        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=639-1cebeab015b906a88198e4c50a3e3d65")
     elif a==3: #corsa
         st.write("")
         st.write("")
