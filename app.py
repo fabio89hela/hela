@@ -83,7 +83,7 @@ with col3:
         st.write("")
         st.write("")
         st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=638-79c7f99522da888c5e008006d2dd3680", disabled=True)
-    elif a==4: #timer
+if a==4: #timer
         # Inizializza Firebase utilizzando i secrets di Streamlit
         if not firebase_admin._apps:
             cred = credentials.Certificate({
