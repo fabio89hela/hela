@@ -41,7 +41,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=3
+a=4
 
 col1, col2,col3 = st.columns([2,0.5,2])
 with col1:
@@ -135,7 +135,7 @@ with col3:
             st.session_state.timer_initialized = False
 
         if not st.session_state.timer_initialized:
-            duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5)
+            duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
             if st.button("Avvia Timer"):
                 start_timer(duration_minutes * 60)
                 st.session_state.timer_initialized = True
