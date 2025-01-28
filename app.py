@@ -134,11 +134,11 @@ if a==4: #timer
         if "timer_initialized" not in st.session_state:
             st.session_state.timer_initialized = False
 
-        #if not st.session_state.timer_initialized:
-        #    duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
-        #    if st.button("Avvia Timer"):
-        #        start_timer(duration_minutes * 60)
-        #        st.session_state.timer_initialized = True
+        if not st.session_state.timer_initialized:
+            duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
+            if st.button("Avvia Timer"):
+                start_timer(duration_minutes * 60)
+                st.session_state.timer_initialized = True
 
         # Aggiorna dinamicamente la schermata
         placeholder = st.empty()
