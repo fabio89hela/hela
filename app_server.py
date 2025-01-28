@@ -46,6 +46,10 @@ st.markdown("""
 st.image("logo.jpg",width=400)
 
 col1, col2,col3, col4 = st.columns([1,1,1,1])
+st.write("")
+st.write("")
+st.write("")
+st.write("")
 with col1:
   st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=634-a56cc3d28c8361f192995fe925fc7f92")
 with col2:
