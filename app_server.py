@@ -51,13 +51,13 @@ with col1:
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=634-a56cc3d28c8361f192995fe925fc7f92")
+  st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=634-a56cc3d28c8361f192995fe925fc7f92",disabled=True)
 with col2:
   st.write("")
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("Nuoto", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2")
+  st.link_button("Nuoto", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2",disabled=True)
 with col3:
   st.write("")
   st.write("")
