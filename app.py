@@ -82,7 +82,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=637-5615a07578e368c77ad332f6fe36bc2b")
+        st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=638-79c7f99522da888c5e008006d2dd3680")
     elif a==4: #timer
         # Inizializza Firebase utilizzando i secrets di Streamlit
         if not firebase_admin._apps:
