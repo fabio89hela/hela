@@ -177,7 +177,6 @@ if a==4: #timer
 
                     # Mostra messaggio quando scade
                     if remaining_time <= 0:
-                        st.info("Il timer è scaduto!")
                         stop_timer()
                         st.session_state.timer_initialized = False
                         audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"#"https://drive.google.com/uc?id=1A2B3C4D5E6F7G8H9I0&export=download"
@@ -194,5 +193,5 @@ if a==4: #timer
             duration = timer_data.get("duration", 0)
 
             # Aspetta 1 secondo prima di aggiornare
-            time.sleep(0.2)
+            time.sleep(0.05)
             st.rerun()
