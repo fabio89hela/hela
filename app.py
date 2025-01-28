@@ -151,7 +151,7 @@ if a==4: #timer
                     remaining_time = max(0, duration - elapsed_time)
                     minutes = int(remaining_time // 60)
                     seconds = int(remaining_time % 60)
-                    if seconds<=10:
+                    if seconds<=10 and minutes==0:
                         st.markdown(
                         f"""
                         <p style="font-size: 70px; font-weight: bold; text-align: center;color: #ff4b4b;">
