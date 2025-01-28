@@ -57,7 +57,7 @@ with col2:
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("Nuoto    ", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2")
+  st.link_button("   Nuoto    ", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2")
 with col3:
   st.write("")
   st.write("")
