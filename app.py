@@ -163,7 +163,7 @@ if a==4: #timer
                     else:
                         st.markdown(
                     f"""
-                    <p style="font-size: 56px; font-weight: bold; text-align: center;">
+                    <p style="font-size: 65px; font-weight: bold; text-align: center;">
                     Tempo rimanente: {minutes:02d}:{seconds:02d}
                     </p>
                     """,
@@ -177,7 +177,7 @@ if a==4: #timer
 
                     # Mostra messaggio quando scade
                     if remaining_time <= 0:
-                        st.success("Il timer è scaduto!")
+                        st.info("Il timer è scaduto!")
                         stop_timer()
                         st.session_state.timer_initialized = False
                         audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"#"https://drive.google.com/uc?id=1A2B3C4D5E6F7G8H9I0&export=download"
