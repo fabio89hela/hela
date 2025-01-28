@@ -47,7 +47,7 @@ st.image("logo.jpg",width=400)
 
 col1, col2,col3, col4 = st.columns([1,1,1,1])
 with col1:
-  st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=629-a55cd1dd64522abca61a4ee6b419f004")
+  st.link_button("Riscaldamento", "https://game.helaglobe.com/main/gameview/?game=633-d8cec02cd4de9dffc72cf3e43bfb4305")
 with col2:
   st.link_button("Nuoto", "https://game.helaglobe.com/main/gameview/?game=632-f34a5b905a23b05f3a28323e613c44cb")
 with col3:
