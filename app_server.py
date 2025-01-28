@@ -57,7 +57,7 @@ with col2:
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("   Nuoto  ", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2")
+  st.link_button("Nuoto", "https://game.helaglobe.com/main/gameview/?game=635-f0ce36416abefe671629ae5bcf31d1b2",type="primary")
 with col3:
   st.write("")
   st.write("")
@@ -69,4 +69,4 @@ with col4:
   st.write("")
   st.write("")
   st.write("")
-  st.link_button("   Corsa  ", "https://game.helaglobe.com/main/gameview/?game=637-5615a07578e368c77ad332f6fe36bc2b")
+  st.link_button("Corsa", "https://game.helaglobe.com/main/gameview/?game=637-5615a07578e368c77ad332f6fe36bc2b")
