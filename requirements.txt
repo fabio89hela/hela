@@ -3,3 +3,5 @@ streamlit
 speechrecognition
 pydub
 streamlit-webrtc
+av
+numpy
