@@ -1,2 +1,4 @@
 firebase-admin 
 streamlit
+speechrecognition
+pydub
