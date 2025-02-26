@@ -2,3 +2,4 @@ firebase-admin
 streamlit
 speechrecognition
 pydub
+streamlit-webrtc
