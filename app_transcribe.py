@@ -2,7 +2,14 @@ import streamlit as st
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
 import av
 import speech_recognition as sr
+import asyncio
 import queue
+
+# Ensure event loop is running (Fix for Python 3.12)
+try:
+    asyncio.get_running_loop()
+except RuntimeError:
+    asyncio.run(asyncio.sleep(0))
 
 # Set page title
 st.set_page_config(page_title="Live Speech to Text", page_icon="🎙️")
@@ -50,6 +57,7 @@ webrtc_ctx = webrtc_streamer(
     mode=WebRtcMode.SENDRECV,
     rtc_configuration=RTC_CONFIGURATION,
     media_stream_constraints={"video": False, "audio": True},
+    async_processing=True,  # Ensure async processing is enabled
     audio_frame_callback=audio_callback,
 )
 
