@@ -6,6 +6,7 @@ import os
 import time
 import streamlit.components.v1 as components
 from streamlit_javascript import st_javascript
+import time
 
 # 🔑 Inserisci la tua API Key di OpenAI
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -80,18 +81,23 @@ def get_javascript_value(js_code, key):
     return st.text_area("📥 Dati Audio (Base64)", key=key, height=100)
 
 # **Controlliamo continuamente se `localStorage` è stato aggiornato**
-prev_timestamp = st.session_state.get("prev_timestamp", 0)
+prev_timestamp = st.session_state.get("prev_timestamp", str(int(time.time() * 1000)))
 
 i=0
-while True:
-    i=i+1
-    timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
-    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:
-        # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
-        audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64"+str(i))
-        st.session_state["prev_timestamp"] = int(timestamp)
-        break
-    time.sleep(1)
+with st.empty():
+    while True:
+        i=i+1
+        timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
+        st.write(timestamp)
+        st.write(prev_timestamp)
+        if timestamp and timestamp > prev_timestamp:
+            st.write("Qui")
+            # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
+            audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64"+str(i))
+            st.write(audio_data)
+            st.session_state["prev_timestamp"] = int(timestamp)
+            break
+        time.sleep(1)
 
 # **Se abbiamo ricevuto l'audio, procediamo alla trascrizione**
 if "audio_base64" in st.session_state:
