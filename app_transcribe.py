@@ -4,16 +4,28 @@ import numpy as np
 import base64
 import tempfile
 import os
-from pydub import AudioSegment
 import streamlit.components.v1 as components
 
-# 🔑 API Key di OpenAI (inseriscila qui o usa secrets)
+# 🔑 Imposta la tua API Key di OpenAI
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-st.title("🎙️ Trascrizione vocale con Whisper")
+st.title("🎙️ Trascrizione Vocale con Whisper")
 
-# **JavaScript per la registrazione audio nel browser**
+# **Componenti HTML e JavaScript per registrare audio**
 audio_recorder_script = """
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registratore</title>
+</head>
+<body>
+
+<button onclick="startRecording()" id="startBtn">🎤 Avvia Registrazione</button>
+<button onclick="stopRecording()" id="stopBtn" disabled>⏹️ Stop Registrazione</button>
+<textarea id="audioData" style="display:none;"></textarea>
+
 <script>
 let mediaRecorder;
 let audioChunks = [];
@@ -28,8 +40,8 @@ function startRecording() {
             audioChunks.push(event.data);
         };
         
-        document.getElementById("startRecording").disabled = true;
-        document.getElementById("stopRecording").disabled = false;
+        document.getElementById("startBtn").disabled = true;
+        document.getElementById("stopBtn").disabled = false;
     });
 }
 
@@ -41,31 +53,29 @@ function stopRecording() {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
             const base64data = reader.result.split(',')[1];
-            document.getElementById("audioData").value = base64data;
+            window.parent.postMessage(base64data, "*");
         };
     };
-    
-    document.getElementById("startRecording").disabled = false;
-    document.getElementById("stopRecording").disabled = true;
+
+    document.getElementById("startBtn").disabled = false;
+    document.getElementById("stopBtn").disabled = true;
 }
 </script>
+</body>
+</html>
 """
 
-# **Pulsanti di registrazione**
-st.markdown('<button id="startRecording" onclick="startRecording()">🎤 Avvia Registrazione</button>', unsafe_allow_html=True)
-st.markdown('<button id="stopRecording" onclick="stopRecording()" disabled>⏹️ Stop Registrazione</button>', unsafe_allow_html=True)
+# **Mostra il registratore in un iFrame**
+components.html(audio_recorder_script, height=150)
 
-# **Campo nascosto per ricevere l’audio**
+# **Ricezione dell'audio**
 audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100)
-
-# **Aggiungere il codice JavaScript**
-components.html(audio_recorder_script, height=0)
 
 # **Elaborazione dell’audio quando viene ricevuto**
 if audio_data:
     st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
 
-    # Convertire base64 in file WAV temporaneo
+    # Convertire base64 in file WAV
     audio_bytes = base64.b64decode(audio_data)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
         temp_audio_file.write(audio_bytes)
