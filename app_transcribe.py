@@ -8,17 +8,18 @@ from googleapiclient.http import MediaFileUpload
 from pydub import AudioSegment
 
 # Configura la tua chiave API OpenAI
-OPENAI_API_KEY = "your-openai-api-key"
+OPENAI_API_KEY = st.secrets(["OPENAI_API_KEY"])
 openai.api_key = OPENAI_API_KEY
 
 # Configurazione Google Drive (sostituisci con le credenziali corrette)
 from google.oauth2 import service_account
-SCOPES = ["https://www.googleapis.com/auth/drive.file"]
-SERVICE_ACCOUNT_FILE = "path-to-your-service-account.json"
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+credentials = Credentials.from_service_account_info(st.secrets["gdrive_service_account"])
+drive_service = build("drive", "v3", credentials=creds)
 
-drive_service = build("drive", "v3", credentials=credentials)
+#SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+#SERVICE_ACCOUNT_FILE = "path-to-your-service-account.json"
+#credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+#drive_service = build("drive", "v3", credentials=credentials)
 
 def save_to_drive(file_path, file_name):
     file_metadata = {"name": file_name, "mimeType": "text/plain"}
