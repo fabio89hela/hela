@@ -7,7 +7,7 @@ import os
 from pydub import AudioSegment
 
 # Imposta la tua API Key di OpenAI
-openai.api_key = "YOUR_OPENAI_API_KEY"
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Titolo dell'app
 st.title("🎙️ Trascrizione vocale in tempo reale con Whisper")
