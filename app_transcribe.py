@@ -9,7 +9,7 @@ from pydub import AudioSegment
 from google.oauth2.service_account import Credentials
 
 # Configura la tua chiave API OpenAI
-OPENAI_API_KEY = st.secrets(["OPENAI_API_KEY"])
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 openai.api_key = OPENAI_API_KEY
 
 # Configurazione Google Drive (sostituisci con le credenziali corrette)
