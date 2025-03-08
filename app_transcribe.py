@@ -14,7 +14,7 @@ openai.api_key = OPENAI_API_KEY
 
 # Configurazione Google Drive (sostituisci con le credenziali corrette)
 from google.oauth2 import service_account
-credentials = Credentials.from_service_account_info(st.secrets["gdrive_service_account"])
+creds = Credentials.from_service_account_info(st.secrets["gdrive_service_account"])
 drive_service = build("drive", "v3", credentials=creds)
 
 #SCOPES = ["https://www.googleapis.com/auth/drive.file"]
