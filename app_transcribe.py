@@ -84,7 +84,7 @@ prev_timestamp = st.session_state.get("prev_timestamp", 0)
 
 i=0
 while True:
-    i=1
+    i=i+1
     timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
     if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:
         # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
