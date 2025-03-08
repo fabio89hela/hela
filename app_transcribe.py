@@ -6,19 +6,19 @@ import tempfile
 import os
 import streamlit.components.v1 as components
 
-# 🔑 Imposta la tua API Key di OpenAI
-openai.api_key = "YOUR_OPENAI_API_KEY"
+# 🔑 Inserisci la tua API Key di OpenAI
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.title("🎙️ Trascrizione Vocale con Whisper")
 
-# **Componenti HTML e JavaScript per registrare audio**
+# **JavaScript per la registrazione audio nel browser**
 audio_recorder_script = """
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registratore</title>
+    <title>Registratore Audio</title>
 </head>
 <body>
 
@@ -72,21 +72,37 @@ function stopRecording() {
 # **Mostra il registratore in un iFrame**
 components.html(audio_recorder_script, height=250)
 
-# **Ricezione dell'audio**
-audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100)
+# **Placeholder per ricevere i dati Base64**
+audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100, key="audio_input")
 
-# **Funzione per decodificare Base64 e salvare come file WAV**
+# **JavaScript per ricevere i dati da `postMessage` e aggiornare Streamlit**
+js_code = """
+<script>
+window.addEventListener("message", (event) => {
+    if (event.data.audio) {
+        const streamlitTextArea = parent.document.querySelector('textarea');
+        streamlitTextArea.value = event.data.audio;
+        streamlitTextArea.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+});
+</script>
+"""
+
+# **Esegue il codice JavaScript in Streamlit**
+components.html(js_code, height=0)
+
+# **Funzione per salvare il file audio ricevuto**
 def save_audio_from_base64(audio_base64):
     audio_bytes = base64.b64decode(audio_base64)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
         temp_audio_file.write(audio_bytes)
         return temp_audio_file.name
 
-# **Trascrizione quando l'audio è ricevuto**
+# **Quando viene ricevuto l'audio, avvia la trascrizione**
 if audio_data:
     st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
 
-    # **Salva l'audio**
+    # **Salva l'audio in un file**
     audio_path = save_audio_from_base64(audio_data)
 
     # **Mostrare l’audio registrato**
@@ -102,17 +118,3 @@ if audio_data:
 
     # **Eliminare il file temporaneo**
     os.remove(audio_path)
-
-# **JavaScript per ricevere i dati da `postMessage`**
-js_code = """
-window.addEventListener("message", (event) => {
-    if (event.data.audio) {
-        const textArea = document.querySelector("textarea");
-        textArea.value = event.data.audio;
-        textArea.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-});
-"""
-
-# **Esegue il codice JavaScript in Streamlit**
-components.html(f"<script>{js_code}</script>", height=0)
