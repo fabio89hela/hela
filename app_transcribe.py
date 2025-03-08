@@ -1,81 +1,101 @@
 import streamlit as st
 import openai
+import numpy as np
+import base64
 import tempfile
 import os
-import google.auth
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-from google.oauth2.service_account import Credentials
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
-import av
-import numpy as np
 from pydub import AudioSegment
-import queue
 
-# Configura la tua chiave API OpenAI
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-openai.api_key = OPENAI_API_KEY
+# Imposta la tua API Key di OpenAI
+openai.api_key = "YOUR_OPENAI_API_KEY"
 
-# Configurazione Google Drive
-creds = Credentials.from_service_account_info(st.secrets["gdrive_service_account"])
-drive_service = build("drive", "v3", credentials=creds)
+# Titolo dell'app
+st.title("🎙️ Trascrizione vocale in tempo reale con Whisper")
 
-def save_to_drive(file_path, file_name):
-    file_metadata = {"name": file_name, "mimeType": "text/plain"}
-    media = MediaFileUpload(file_path, mimetype="text/plain")
-    file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-    return file.get("id")
+# JavaScript per la registrazione dell'audio nel browser
+audio_recorder_script = """
+<script>
+let mediaRecorder;
+let audioChunks = [];
 
-def transcribe_audio(audio_path):
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+    });
+}
+
+function stopRecording() {
+    return new Promise(resolve => {
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = () => {
+                const base64data = reader.result.split(',')[1];
+                resolve(base64data);
+            };
+        };
+        mediaRecorder.stop();
+    });
+}
+
+let startBtn = document.getElementById("startRecording");
+let stopBtn = document.getElementById("stopRecording");
+
+startBtn.onclick = () => {
+    audioChunks = [];
+    startRecording();
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+};
+
+stopBtn.onclick = async () => {
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+    const audioBase64 = await stopRecording();
+    window.parent.postMessage(audioBase64, "*");
+};
+</script>
+"""
+
+# Pulsanti per controllare la registrazione
+st.markdown('<button id="startRecording">🎤 Avvia Registrazione</button>', unsafe_allow_html=True)
+st.markdown('<button id="stopRecording" disabled>⏹️ Stop Registrazione</button>', unsafe_allow_html=True)
+st.components.v1.html(audio_recorder_script, height=0)
+
+# **JavaScript per ricevere i dati audio**
+audio_data = st_javascript("""
+    return new Promise((resolve) => {
+        window.addEventListener("message", (event) => {
+            resolve(event.data);
+        });
+    });
+""")
+
+# **Verifica se abbiamo ricevuto l'audio**
+if audio_data:
+    st.success("🎙️ Audio ricevuto! Elaborazione in corso...")
+
+    # Convertire l'audio base64 in file WAV
+    audio_bytes = base64.b64decode(audio_data)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+        temp_audio_file.write(audio_bytes)
+        audio_path = temp_audio_file.name
+
+    # **Mostra l'audio registrato**
+    st.audio(audio_path, format="audio/wav")
+
+    # **Usa Whisper per la trascrizione**
     with open(audio_path, "rb") as audio_file:
         transcript = openai.Audio.transcribe("whisper-1", audio_file)
-    return transcript['text']
 
-st.title("🎙️ Registrazione Audio e Trascrizione in Tempo Reale")
+    # **Mostra la trascrizione**
+    st.subheader("📝 Trascrizione")
+    st.write(transcript["text"])
 
-# Configurazione WebRTC per la registrazione audio
-RTC_CONFIGURATION = {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-audio_queue = queue.Queue()
-
-def audio_callback(frame: av.AudioFrame):
-    audio = frame.to_ndarray()
-    audio_queue.put(audio)
-    return frame
-
-webrtc_ctx = webrtc_streamer(
-    key="audio_recorder",
-    mode=WebRtcMode.SENDONLY,
-    rtc_configuration=RTC_CONFIGURATION,
-    media_stream_constraints={"video": False, "audio": True},
-    async_processing=True,
-    audio_processor_factory=lambda: audio_callback
-)
-
-if st.button("Interrompi e Trascrivi"):  
-    if not audio_queue.empty():
-        st.spinner("Elaborazione dell'audio...")
-        audio_data = []
-        while not audio_queue.empty():
-            audio_data.append(audio_queue.get())
-        
-        audio_data = np.concatenate(audio_data, axis=0)
-        temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-        audio_segment = AudioSegment(
-            audio_data.tobytes(), frame_rate=48000, sample_width=2, channels=1
-        )
-        temp_audio_file_path = temp_audio_file.name
-        audio_segment.export(temp_audio_file_path, format="wav")
-        
-        transcript_text = transcribe_audio(temp_audio_file_path)
-        st.success("Trascrizione completata!")
-        st.text_area("Testo Trascritto", transcript_text, height=200)
-        
-        # Salvataggio su Google Drive
-        txt_file_path = temp_audio_file_path.replace(".wav", ".txt")
-        with open(txt_file_path, "w", encoding="utf-8") as txt_file:
-            txt_file.write(transcript_text)
-        
-        drive_file_id = save_to_drive(txt_file_path, "trascrizione.txt")
-        st.success(f"File salvato su Google Drive con ID: {drive_file_id}")
-        
-        os.remove(temp_audio_file_path)
+    # **Cancella il file temporaneo**
+    os.remove(audio_path)
