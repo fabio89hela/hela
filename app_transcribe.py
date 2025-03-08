@@ -82,11 +82,13 @@ def get_javascript_value(js_code, key):
 # **Controlliamo continuamente se `localStorage` è stato aggiornato**
 prev_timestamp = st.session_state.get("prev_timestamp", 0)
 
+i=0
 while True:
-    timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp")
-    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:
+    i=1
+    timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
+    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:0
         # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
-        audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64")
+        audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64"+str(i))
         st.session_state["prev_timestamp"] = int(timestamp)
         break
     time.sleep(1)
