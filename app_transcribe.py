@@ -1,70 +1,58 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
-import av
-import speech_recognition as sr
-import asyncio
-import queue
+import openai
+import tempfile
+import os
+import google.auth
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from pydub import AudioSegment
 
-# Ensure event loop is running (Fix for Python 3.12)
-try:
-    asyncio.get_running_loop()
-except RuntimeError:
-    asyncio.run(asyncio.sleep(0))
+# Configura la tua chiave API OpenAI
+OPENAI_API_KEY = "your-openai-api-key"
+openai.api_key = OPENAI_API_KEY
 
-# Set page title
-st.set_page_config(page_title="Live Speech to Text", page_icon="🎙️")
+# Configurazione Google Drive (sostituisci con le credenziali corrette)
+from google.oauth2 import service_account
+SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+SERVICE_ACCOUNT_FILE = "path-to-your-service-account.json"
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
-# Streamlit UI
-st.title("🎙️ Live Speech-to-Text Transcription")
-st.write("Speak into your microphone, and your words will be transcribed in real-time.")
+drive_service = build("drive", "v3", credentials=credentials)
 
-# Queue for storing audio frames
-audio_queue = queue.Queue()
-recognizer = sr.Recognizer()
+def save_to_drive(file_path, file_name):
+    file_metadata = {"name": file_name, "mimeType": "text/plain"}
+    media = MediaFileUpload(file_path, mimetype="text/plain")
+    file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+    return file.get("id")
 
-# WebRTC Configuration (uses Google's public STUN servers)
-RTC_CONFIGURATION = RTCConfiguration(
-    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-)
+def transcribe_audio(audio_path):
+    with open(audio_path, "rb") as audio_file:
+        transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    return transcript['text']
 
-def audio_callback(frame: av.AudioFrame):
-    """ Process incoming audio frames """
-    audio = frame.to_ndarray()
-    audio_queue.put(audio)
-    return frame
+st.title("🎙️ Registrazione Audio e Trascrizione in Tempo Reale")
 
-def recognize_audio():
-    """ Continuously transcribe audio from the queue """
-    while True:
-        if not audio_queue.empty():
-            audio_data = audio_queue.get()
-            with sr.AudioFile(audio_data) as source:
-                try:
-                    text = recognizer.recognize_google(source)
-                    st.session_state["transcription"] += text + " "
-                except sr.UnknownValueError:
-                    st.session_state["transcription"] += "[Unclear speech] "
-                except sr.RequestError:
-                    st.session_state["transcription"] += "[Speech service unavailable] "
+audio_file = st.file_uploader("Carica il tuo file audio", type=["wav", "mp3", "m4a"])
 
-# Initialize session state for transcription
-if "transcription" not in st.session_state:
-    st.session_state["transcription"] = ""
-
-# WebRTC streamer for real-time audio
-webrtc_ctx = webrtc_streamer(
-    key="speech-to-text",
-    mode=WebRtcMode.SENDRECV,
-    rtc_configuration=RTC_CONFIGURATION,
-    media_stream_constraints={"video": False, "audio": True},
-    async_processing=True,  # Ensure async processing is enabled
-    audio_frame_callback=audio_callback,
-)
-
-# Display real-time transcription
-st.subheader("📝 Live Transcription:")
-st.write(st.session_state["transcription"])
-
-# Reset transcription
-if st.button("Clear Transcription"):
-    st.session_state["transcription"] = ""
+if audio_file is not None:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+        tmp_file.write(audio_file.read())
+        tmp_file_path = tmp_file.name
+    
+    st.audio(tmp_file_path, format="audio/wav")
+    
+    with st.spinner("Trascrizione in corso..."):
+        transcript_text = transcribe_audio(tmp_file_path)
+        st.success("Trascrizione completata!")
+        st.text_area("Testo Trascritto", transcript_text, height=200)
+        
+        # Salvataggio su Google Drive
+        txt_file_path = tmp_file_path.replace(".wav", ".txt")
+        with open(txt_file_path, "w", encoding="utf-8") as txt_file:
+            txt_file.write(transcript_text)
+        
+        drive_file_id = save_to_drive(txt_file_path, "trascrizione.txt")
+        st.success(f"File salvato su Google Drive con ID: {drive_file_id}")
+    
+    os.remove(tmp_file_path)
