@@ -84,7 +84,7 @@ def get_javascript_value(js_code, key):
 prev_timestamp = st.session_state.get("prev_timestamp", str(int(time.time() * 1000)))
 
 i=0
-with st.empty():
+if 1>0:
     while True:
         i=i+1
         timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
