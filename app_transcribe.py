@@ -86,7 +86,7 @@ i=0
 while True:
     i=1
     timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
-    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:0
+    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:
         # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
         audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64"+str(i))
         st.session_state["prev_timestamp"] = int(timestamp)
