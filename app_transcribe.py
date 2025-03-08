@@ -88,7 +88,9 @@ if 1>0:
     while True:
         i=i+1
         timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
+        st.write("----")
         st.write(timestamp)
+        st.write("----")
         st.write(prev_timestamp)
         if timestamp and timestamp > prev_timestamp:
             st.write("Qui")
