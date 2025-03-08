@@ -3,29 +3,17 @@ import openai
 import base64
 import tempfile
 import os
+import time
 import streamlit.components.v1 as components
+from streamlit_javascript import st_javascript
 
 # 🔑 Inserisci la tua API Key di OpenAI
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.title("🎙️ Trascrizione Vocale con Whisper")
 
-# **JavaScript per la registrazione audio nel browser**
+# **JavaScript per la registrazione audio nel browser e salvataggio in `localStorage`**
 audio_recorder_script = """
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registratore Audio</title>
-</head>
-<body>
-
-<button onclick="startRecording()" id="startBtn">🎤 Avvia Registrazione</button>
-<button onclick="stopRecording()" id="stopBtn" disabled>⏹️ Stop Registrazione</button>
-<p id="status">⏳ Pronto a registrare...</p>
-<textarea id="audioData" style="display:none;"></textarea>
-
 <script>
 let mediaRecorder;
 let audioChunks = [];
@@ -56,9 +44,9 @@ function stopRecording() {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
             const base64data = reader.result.split(',')[1];
-            document.getElementById("audioData").value = base64data;
-            window.parent.postMessage({ audio: base64data }, "*");
-            document.getElementById("status").innerText = "✅ Audio inviato!";
+            localStorage.setItem("audio_base64", base64data);
+            localStorage.setItem("audio_timestamp", Date.now()); // Aggiorna timestamp
+            document.getElementById("status").innerText = "✅ Audio salvato!";
         };
     };
 
@@ -66,45 +54,53 @@ function stopRecording() {
     document.getElementById("stopBtn").disabled = true;
 }
 </script>
-</body>
-</html>
+
+<button onclick="startRecording()" id="startBtn">🎤 Avvia Registrazione</button>
+<button onclick="stopRecording()" id="stopBtn" disabled>⏹️ Stop Registrazione</button>
+<p id="status">⏳ Pronto a registrare...</p>
 """
 
-# **Mostra il registratore in un iFrame**
+# **Mostra il registratore in Streamlit**
 components.html(audio_recorder_script, height=300)
 
-# **Placeholder per ricevere i dati Base64**
-audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100, key="audio_input")
+# **Funzione per leggere `localStorage` in Streamlit**
+def get_javascript_value(js_code, key):
+    """Esegue un comando JavaScript e ottiene il valore di ritorno"""
+    components.html(
+        f"""
+        <script>
+        var value = {js_code};
+        var streamlitTextArea = parent.document.querySelector('textarea');
+        streamlitTextArea.value = value;
+        streamlitTextArea.dispatchEvent(new Event("input", {{ bubbles: true }}));
+        </script>
+        """,
+        height=0,
+    )
+    return st.text_area("📥 Dati Audio (Base64)", key=key, height=100)
 
-# **JavaScript per ricevere i dati da `postMessage` e aggiornare Streamlit**
-js_code = """
-<script>
-window.addEventListener("message", (event) => {
-    if (event.data.audio) {
-        const streamlitTextArea = parent.document.querySelector('textarea');
-        streamlitTextArea.value = event.data.audio;
-        streamlitTextArea.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-});
-</script>
-"""
+# **Controlliamo continuamente se `localStorage` è stato aggiornato**
+prev_timestamp = st.session_state.get("prev_timestamp", 0)
 
-# **Esegue il codice JavaScript in Streamlit**
-components.html(js_code, height=0)
+while True:
+    timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp")
+    if timestamp and timestamp.isnumeric() and int(timestamp) > prev_timestamp:
+        # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
+        audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64")
+        st.session_state["prev_timestamp"] = int(timestamp)
+        break
+    time.sleep(1)
 
-# **Funzione per salvare il file audio ricevuto**
-def save_audio_from_base64(audio_base64):
-    audio_bytes = base64.b64decode(audio_base64)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-        temp_audio_file.write(audio_bytes)
-        return temp_audio_file.name
-
-# **Quando viene ricevuto l'audio, avvia la trascrizione**
-if audio_data:
+# **Se abbiamo ricevuto l'audio, procediamo alla trascrizione**
+if "audio_base64" in st.session_state:
+    audio_data = st.session_state["audio_base64"]
     st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
 
-    # **Salva l'audio in un file**
-    audio_path = save_audio_from_base64(audio_data)
+    # **Salviamo l'audio in un file temporaneo**
+    audio_bytes = base64.b64decode(audio_data)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+        temp_audio_file.write(audio_bytes)
+        audio_path = temp_audio_file.name
 
     # **Mostrare l’audio registrato**
     st.audio(audio_path, format="audio/wav")
