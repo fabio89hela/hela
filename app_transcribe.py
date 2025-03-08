@@ -7,11 +7,10 @@ import os
 from pydub import AudioSegment
 import streamlit.components.v1 as components
 
-# 🔑 API Key di OpenAI (inseriscila qui o usa streamlit secrets)
+# 🔑 API Key di OpenAI (inseriscila qui o usa secrets)
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Titolo dell'app
-st.title("🎙️ Trascrizione Vocale con Whisper in Streamlit")
+st.title("🎙️ Trascrizione vocale con Whisper")
 
 # **JavaScript per la registrazione audio nel browser**
 audio_recorder_script = """
@@ -42,14 +41,7 @@ function stopRecording() {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
             const base64data = reader.result.split(',')[1];
-            fetch("/record_audio", {
-                method: "POST",
-                body: JSON.stringify({ audio: base64data }),
-                headers: { "Content-Type": "application/json" }
-            }).then(response => response.json())
-              .then(data => {
-                  document.getElementById("transcription").innerText = data.transcription;
-              });
+            document.getElementById("audioData").value = base64data;
         };
     };
     
@@ -59,46 +51,36 @@ function stopRecording() {
 </script>
 """
 
-# **Aggiungere i pulsanti di registrazione**
+# **Pulsanti di registrazione**
 st.markdown('<button id="startRecording" onclick="startRecording()">🎤 Avvia Registrazione</button>', unsafe_allow_html=True)
 st.markdown('<button id="stopRecording" onclick="stopRecording()" disabled>⏹️ Stop Registrazione</button>', unsafe_allow_html=True)
 
-# **Aggiungere lo script JavaScript**
+# **Campo nascosto per ricevere l’audio**
+audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100)
+
+# **Aggiungere il codice JavaScript**
 components.html(audio_recorder_script, height=0)
 
-# **Area di testo per mostrare la trascrizione**
-st.subheader("📝 Trascrizione:")
-transcription_text = st.empty()  # Spazio vuoto in cui apparirà la trascrizione
+# **Elaborazione dell’audio quando viene ricevuto**
+if audio_data:
+    st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
 
-# **Backend per elaborare l'audio**
-from flask import Flask, request, jsonify
+    # Convertire base64 in file WAV temporaneo
+    audio_bytes = base64.b64decode(audio_data)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+        temp_audio_file.write(audio_bytes)
+        audio_path = temp_audio_file.name
 
-app = Flask(__name__)
+    # **Mostrare l’audio registrato**
+    st.audio(audio_path, format="audio/wav")
 
-@app.route("/record_audio", methods=["POST"])
-def record_audio():
-    try:
-        data = request.get_json()
-        audio_base64 = data["audio"]
-        
-        # Decodifica l'audio Base64 in un file WAV temporaneo
-        audio_bytes = base64.b64decode(audio_base64)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-            temp_audio_file.write(audio_bytes)
-            audio_path = temp_audio_file.name
-        
-        # **Trascrizione con Whisper**
-        with open(audio_path, "rb") as audio_file:
-            transcript = openai.Audio.transcribe("whisper-1", audio_file)
-        
-        # **Elimina il file temporaneo**
-        os.remove(audio_path)
-        
-        return jsonify({"transcription": transcript["text"]})
-    
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # **Trascrivere con Whisper**
+    with open(audio_path, "rb") as audio_file:
+        transcript = openai.Audio.transcribe("whisper-1", audio_file)
 
-# **Eseguire Flask in background**
-import threading
-threading.Thread(target=lambda: app.run(port=5001, debug=False, use_reloader=False)).start()
+    # **Mostrare la trascrizione**
+    st.subheader("📝 Trascrizione:")
+    st.write(transcript["text"])
+
+    # **Eliminare il file temporaneo**
+    os.remove(audio_path)
