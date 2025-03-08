@@ -5,14 +5,15 @@ import base64
 import tempfile
 import os
 from pydub import AudioSegment
+import streamlit.components.v1 as components
 
-# Imposta la tua API Key di OpenAI
+# 🔑 API Key di OpenAI (inseriscila qui o usa streamlit secrets)
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Titolo dell'app
-st.title("🎙️ Trascrizione vocale in tempo reale con Whisper")
+st.title("🎙️ Trascrizione Vocale con Whisper in Streamlit")
 
-# JavaScript per la registrazione dell'audio nel browser
+# **JavaScript per la registrazione audio nel browser**
 audio_recorder_script = """
 <script>
 let mediaRecorder;
@@ -22,80 +23,82 @@ function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.start();
+        audioChunks = [];
+        
         mediaRecorder.ondataavailable = event => {
             audioChunks.push(event.data);
         };
+        
+        document.getElementById("startRecording").disabled = true;
+        document.getElementById("stopRecording").disabled = false;
     });
 }
 
 function stopRecording() {
-    return new Promise(resolve => {
-        mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const reader = new FileReader();
-            reader.readAsDataURL(audioBlob);
-            reader.onloadend = () => {
-                const base64data = reader.result.split(',')[1];
-                resolve(base64data);
-            };
+    mediaRecorder.stop();
+    mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => {
+            const base64data = reader.result.split(',')[1];
+            fetch("/record_audio", {
+                method: "POST",
+                body: JSON.stringify({ audio: base64data }),
+                headers: { "Content-Type": "application/json" }
+            }).then(response => response.json())
+              .then(data => {
+                  document.getElementById("transcription").innerText = data.transcription;
+              });
         };
-        mediaRecorder.stop();
-    });
+    };
+    
+    document.getElementById("startRecording").disabled = false;
+    document.getElementById("stopRecording").disabled = true;
 }
-
-let startBtn = document.getElementById("startRecording");
-let stopBtn = document.getElementById("stopRecording");
-
-startBtn.onclick = () => {
-    audioChunks = [];
-    startRecording();
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-};
-
-stopBtn.onclick = async () => {
-    stopBtn.disabled = true;
-    startBtn.disabled = false;
-    const audioBase64 = await stopRecording();
-    window.parent.postMessage(audioBase64, "*");
-};
 </script>
 """
 
-# Pulsanti per controllare la registrazione
-st.markdown('<button id="startRecording">🎤 Avvia Registrazione</button>', unsafe_allow_html=True)
-st.markdown('<button id="stopRecording" disabled>⏹️ Stop Registrazione</button>', unsafe_allow_html=True)
-st.components.v1.html(audio_recorder_script, height=0)
+# **Aggiungere i pulsanti di registrazione**
+st.markdown('<button id="startRecording" onclick="startRecording()">🎤 Avvia Registrazione</button>', unsafe_allow_html=True)
+st.markdown('<button id="stopRecording" onclick="stopRecording()" disabled>⏹️ Stop Registrazione</button>', unsafe_allow_html=True)
 
-# **JavaScript per ricevere i dati audio**
-audio_data = st_javascript("""
-    return new Promise((resolve) => {
-        window.addEventListener("message", (event) => {
-            resolve(event.data);
-        });
-    });
-""")
+# **Aggiungere lo script JavaScript**
+components.html(audio_recorder_script, height=0)
 
-# **Verifica se abbiamo ricevuto l'audio**
-if audio_data:
-    st.success("🎙️ Audio ricevuto! Elaborazione in corso...")
+# **Area di testo per mostrare la trascrizione**
+st.subheader("📝 Trascrizione:")
+transcription_text = st.empty()  # Spazio vuoto in cui apparirà la trascrizione
 
-    # Convertire l'audio base64 in file WAV
-    audio_bytes = base64.b64decode(audio_data)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-        temp_audio_file.write(audio_bytes)
-        audio_path = temp_audio_file.name
+# **Backend per elaborare l'audio**
+from flask import Flask, request, jsonify
 
-    # **Mostra l'audio registrato**
-    st.audio(audio_path, format="audio/wav")
+app = Flask(__name__)
 
-    # **Usa Whisper per la trascrizione**
-    with open(audio_path, "rb") as audio_file:
-        transcript = openai.Audio.transcribe("whisper-1", audio_file)
+@app.route("/record_audio", methods=["POST"])
+def record_audio():
+    try:
+        data = request.get_json()
+        audio_base64 = data["audio"]
+        
+        # Decodifica l'audio Base64 in un file WAV temporaneo
+        audio_bytes = base64.b64decode(audio_base64)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+            temp_audio_file.write(audio_bytes)
+            audio_path = temp_audio_file.name
+        
+        # **Trascrizione con Whisper**
+        with open(audio_path, "rb") as audio_file:
+            transcript = openai.Audio.transcribe("whisper-1", audio_file)
+        
+        # **Elimina il file temporaneo**
+        os.remove(audio_path)
+        
+        return jsonify({"transcription": transcript["text"]})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-    # **Mostra la trascrizione**
-    st.subheader("📝 Trascrizione")
-    st.write(transcript["text"])
-
-    # **Cancella il file temporaneo**
-    os.remove(audio_path)
+# **Eseguire Flask in background**
+import threading
+threading.Thread(target=lambda: app.run(port=5001, debug=False, use_reloader=False)).start()
