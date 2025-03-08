@@ -1,7 +1,12 @@
 firebase-admin 
 streamlit
 speechrecognition
-pydub
 streamlit-webrtc
 av
 numpy
+openai 
+pydub 
+google-auth 
+google-auth-oauthlib 
+google-auth-httplib2 
+google-api-python-client
