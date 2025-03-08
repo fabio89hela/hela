@@ -7,7 +7,7 @@ import os
 import streamlit.components.v1 as components
 
 # 🔑 Imposta la tua API Key di OpenAI
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+openai.api_key = "YOUR_OPENAI_API_KEY"
 
 st.title("🎙️ Trascrizione Vocale con Whisper")
 
@@ -24,7 +24,7 @@ audio_recorder_script = """
 
 <button onclick="startRecording()" id="startBtn">🎤 Avvia Registrazione</button>
 <button onclick="stopRecording()" id="stopBtn" disabled>⏹️ Stop Registrazione</button>
-<textarea id="audioData" style="display:none;"></textarea>
+<p id="status">⏳ Pronto a registrare...</p>
 
 <script>
 let mediaRecorder;
@@ -35,6 +35,7 @@ function startRecording() {
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.start();
         audioChunks = [];
+        document.getElementById("status").innerText = "🔴 Registrazione in corso...";
         
         mediaRecorder.ondataavailable = event => {
             audioChunks.push(event.data);
@@ -47,13 +48,16 @@ function startRecording() {
 
 function stopRecording() {
     mediaRecorder.stop();
+    document.getElementById("status").innerText = "⏳ Elaborazione audio...";
+
     mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
             const base64data = reader.result.split(',')[1];
-            window.parent.postMessage(base64data, "*");
+            window.parent.postMessage({ audio: base64data }, "*");
+            document.getElementById("status").innerText = "✅ Audio inviato!";
         };
     };
 
@@ -66,20 +70,24 @@ function stopRecording() {
 """
 
 # **Mostra il registratore in un iFrame**
-components.html(audio_recorder_script, height=150)
+components.html(audio_recorder_script, height=250)
 
 # **Ricezione dell'audio**
 audio_data = st.text_area("📥 Dati Audio (Base64)", "", height=100)
 
-# **Elaborazione dell’audio quando viene ricevuto**
+# **Funzione per decodificare Base64 e salvare come file WAV**
+def save_audio_from_base64(audio_base64):
+    audio_bytes = base64.b64decode(audio_base64)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
+        temp_audio_file.write(audio_bytes)
+        return temp_audio_file.name
+
+# **Trascrizione quando l'audio è ricevuto**
 if audio_data:
     st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
 
-    # Convertire base64 in file WAV
-    audio_bytes = base64.b64decode(audio_data)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-        temp_audio_file.write(audio_bytes)
-        audio_path = temp_audio_file.name
+    # **Salva l'audio**
+    audio_path = save_audio_from_base64(audio_data)
 
     # **Mostrare l’audio registrato**
     st.audio(audio_path, format="audio/wav")
@@ -94,3 +102,17 @@ if audio_data:
 
     # **Eliminare il file temporaneo**
     os.remove(audio_path)
+
+# **JavaScript per ricevere i dati da `postMessage`**
+js_code = """
+window.addEventListener("message", (event) => {
+    if (event.data.audio) {
+        const textArea = document.querySelector("textarea");
+        textArea.value = event.data.audio;
+        textArea.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+});
+"""
+
+# **Esegue il codice JavaScript in Streamlit**
+components.html(f"<script>{js_code}</script>", height=0)
