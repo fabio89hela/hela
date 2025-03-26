@@ -48,6 +48,9 @@ with col1:
     st.write("")
     st.write("")
     st.image("logo.jpg")
+    image_path = '..\\layout.png'
+    html_string = f'<a href="{image_path}" target="_blank"><img src="{image_path}" width="200" caption="legend"></a>'
+    st.markdown(html_string, unsafe_allow_html=True)
 
 with col3:
     st.write("")
