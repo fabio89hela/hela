@@ -24,7 +24,7 @@ def custom_button(label, key):
     return submitted
 
 # Define the path to the image
-image_path = '..\\logo.jpg'
+image_path = '\\logo.jpg'
 
 # Define the HTML hyperlink with the image
 html_string = f'<a href="{image_path}" target="_blank"><img src="{image_path}" width="200" caption="legend"></a>'
