@@ -23,6 +23,10 @@ def custom_button(label, key):
     submitted = st.markdown(button_html, unsafe_allow_html=True)
     return submitted
 
+# Input iniziale per impostare il timer
+if "timer_initialized" not in st.session_state:
+    st.session_state.timer_initialized = False
+
 # Aggiungi stile CSS per personalizzare i pulsanti
 st.markdown("""
     <style>
@@ -139,10 +143,6 @@ if a==4: #timer
     running = timer_data.get("running", False)
     start_time = float(timer_data.get("start_time", 0) or 0)
     duration = timer_data.get("duration", 0)
-
-    # Input iniziale per impostare il timer
-    if "timer_initialized" not in st.session_state:
-        st.session_state.timer_initialized = False
 
     if not st.session_state.timer_initialized:
         duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
