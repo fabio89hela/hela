@@ -48,7 +48,8 @@ col1, col2,col3 = st.columns([0.5,0.5,2]) #da usare con timer
 with col1:
     st.write("")
     st.write("")
-    st.image("logo.jpg")
+    if a<4:
+        st.image("logo.jpg")
 
 with col3:
     st.write("")
