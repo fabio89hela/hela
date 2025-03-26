@@ -140,7 +140,7 @@ if a==4: #timer
             st.session_state.timer_initialized = False
 
         if not st.session_state.timer_initialized:
-            duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
+            duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=5,step=float)
             if st.button("Avvia Timer"): 
                 start_timer(duration_minutes * 60)
                 st.session_state.timer_initialized = True
@@ -184,7 +184,6 @@ if a==4: #timer
                     if remaining_time <= 0:
                         stop_timer()
                         st.session_state.timer_initialized = False
-                        audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"#"https://drive.google.com/uc?id=1A2B3C4D5E6F7G8H9I0&export=download"
                 else:
                     st.session_state.timer_initialized = False
 
