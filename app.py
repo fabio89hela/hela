@@ -89,7 +89,7 @@ with col3:
         st.write("")
         st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=638-79c7f99522da888c5e008006d2dd3680", disabled=True)
 if a==4: #timer
-    # Inizializza Firebase utilizzando i secrets di Streamlit
+    # Inizializza Firebase
     if not firebase_admin._apps:
         cred = credentials.Certificate({
             "type": st.secrets["type"],
@@ -107,10 +107,8 @@ if a==4: #timer
             'databaseURL': 'https://aiom---torino-default-rtdb.europe-west1.firebasedatabase.app/'
         })
 
-    # Firebase Database Reference
     timer_ref = db.reference("timer")
 
-    # Funzione per avviare il timer
     def start_timer(duration):
         timer_ref.set({
             "start_time": time.time(),
@@ -118,108 +116,62 @@ if a==4: #timer
             "running": True
         })
 
-    # Funzione per fermare il timer
     def stop_timer():
-        timer_ref.update({
-            "running": False
-        })
+        timer_ref.update({"running": False})
 
-    # Funzione per riprendere il timer
-    def resume_timer(start_time):
+    def resume_timer(past_start_time):
         current_time = time.time()
-        elapsed_time = current_time - start_time
+        elapsed_time = current_time - past_start_time
         new_start_time = current_time - elapsed_time
         timer_ref.update({
             "start_time": new_start_time,
             "running": True
         })
 
-    # Ottieni stato attuale del timer dal database
-    timer_data = timer_ref.get()
-    if not timer_data:
-        timer_data = {"start_time": None, "duration": 0, "running": False}
-
-    # Assicurati che le chiavi esistano nel dizionario
+    # Stato iniziale
+    timer_data = timer_ref.get() or {"start_time": None, "duration": 0, "running": False}
     running = timer_data.get("running", False)
     start_time = float(timer_data.get("start_time", 0) or 0)
     duration = timer_data.get("duration", 0)
+
+    # Sessione per input iniziale
+    if "timer_initialized" not in st.session_state:
+        st.session_state.timer_initialized = False
 
     if not st.session_state.timer_initialized:
         duration_minutes = st.number_input("Durata del timer (in minuti):", min_value=1, max_value=60, value=6)
         if st.button("Avvia Timer"):
             start_timer(duration_minutes * 60)
             st.session_state.timer_initialized = True
+            st.rerun()
 
-    # Aggiorna dinamicamente la schermata
-    placeholder = st.empty()
-    while True:
-        with placeholder.container():
-            if running:
-                # Calcola tempo rimanente
-                elapsed_time = time.time() - start_time
-                remaining_time = max(0, duration - elapsed_time)
-                minutes = int(remaining_time // 60)
-                seconds = int(remaining_time % 60)
+    elapsed_time = time.time() - start_time if start_time else 0
+    remaining_time = max(0, duration - elapsed_time)
+    minutes = int(remaining_time // 60)
+    seconds = int(remaining_time % 60)
 
-                if seconds <= 10 and minutes == 0:
-                    st.markdown(
-                        f"""
-                        <p style="font-size: 70px; font-weight: bold; text-align: center; color: #ff4b4b;">
-                        Tempo rimanente: {seconds:02d}
-                        </p>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                else:
-                    st.markdown(
-                        f"""
-                        <p style="font-size: 50px; font-weight: bold; text-align: center;">
-                        Tempo rimanente: {minutes:02d}:{seconds:02d}
-                        </p>
-                        """,
-                        unsafe_allow_html=True
-                    )
+    if running and remaining_time > 0:
+        if seconds <= 10 and minutes == 0:
+            st.markdown(f"<p style='font-size:70px; font-weight:bold; text-align:center; color:#ff4b4b;'>Tempo rimanente: {seconds:02d}</p>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<p style='font-size:50px; font-weight:bold; text-align:center;'>Tempo rimanente: {minutes:02d}:{seconds:02d}</p>", unsafe_allow_html=True)
 
-                # Bottone per fermare il timer
-                if st.button("Ferma Timer", key="stop_button"):
-                    stop_timer()
-                    st.session_state.timer_initialized = False
+        if st.button("Ferma Timer"):
+            stop_timer()
+            st.rerun()
 
-                # Se è scaduto
-                if remaining_time <= 0:
-                    stop_timer()
-                    st.session_state.timer_initialized = False
-                    audio_url = "https://drive.google.com/file/d/10zYKOPqoaSUVTEic76mov04KwYXuhqjE/view?usp=sharing"
-                    st.warning("⏰ Timer scaduto!")
-            else:
-                # Timer fermo: calcola quanto tempo è rimasto
-                elapsed_time = time.time() - start_time if start_time else 0
-                remaining_time = max(0, duration - elapsed_time)
+    elif not running and remaining_time > 0:
+        st.markdown(f"<p style='font-size:30px; text-align:center;'>Timer in pausa<br>Tempo rimanente: {minutes:02d}:{seconds:02d}</p>", unsafe_allow_html=True)
+        if st.button("Riprendi Timer"):
+            resume_timer(start_time)
+            st.rerun()
 
-                if remaining_time > 0 and start_time:
-                    st.markdown(
-                        f"""
-                        <p style="font-size: 30px; text-align: center;">
-                        Timer in pausa<br>Tempo rimanente: {int(remaining_time // 60):02d}:{int(remaining_time % 60):02d}
-                        </p>
-                        """,
-                        unsafe_allow_html=True
-                    )
-    
-                    if st.button("Riprendi Timer", key="resume_button"):
-                        resume_timer(start_time)
-                        st.session_state.timer_initialized = True
-                else:
-                    st.session_state.timer_initialized = False
+    if remaining_time <= 0 and running:
+        stop_timer()
+        st.warning("⏰ Timer scaduto!")
+        st.rerun()
 
-        # Ricarica stato del timer
-        timer_data = timer_ref.get()
-        if not timer_data:
-            timer_data = {"start_time": None, "duration": 0, "running": False}
-
-        running = timer_data.get("running", False)
-        start_time = float(timer_data.get("start_time", 0) or 0)
-        duration = timer_data.get("duration", 0)
-        # Aggiorna ogni 0.05 secondi
-        time.sleep(0.05)
+    # Auto refresh ogni 1 secondo se il timer è attivo
+    if running:
+        time.sleep(1)
         st.rerun()
