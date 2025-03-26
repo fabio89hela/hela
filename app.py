@@ -48,7 +48,7 @@ with col1:
     st.write("")
     st.write("")
     st.image("logo.jpg")
-    image_path = '..\\layout.png'
+    image_path = 'https://github.com/fabio89hela/hela/blob/0fb91272db199afe6692651fa8b347d991f66133/logo.jpg'
     html_string = f'<a href="{image_path}" target="_blank"><img src="{image_path}" width="200" caption="legend"></a>'
     st.markdown(html_string, unsafe_allow_html=True)
 
