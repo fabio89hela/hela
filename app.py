@@ -41,7 +41,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=2
+a=4
 
 #col1, col2,col3 = st.columns([0.5,0.5,2]) #da usare con timer
 col1, col2,col3 = st.columns([2,0.5,2])
