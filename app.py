@@ -23,12 +23,6 @@ def custom_button(label, key):
     submitted = st.markdown(button_html, unsafe_allow_html=True)
     return submitted
 
-# Define the path to the image
-image_path = '.\logo.jpg'
-
-# Define the HTML hyperlink with the image
-html_string = f'<a href="{image_path}" target="_blank"><img src="{image_path}" width="200" caption="legend"></a>'
-
 # Aggiungi stile CSS per personalizzare i pulsanti
 st.markdown("""
     <style>
@@ -53,9 +47,7 @@ col1, col2,col3 = st.columns([0.5,0.5,2])
 with col1:
     st.write("")
     st.write("")
-    # Display the image using `st.markdown`
-    st.markdown(html_string, unsafe_allow_html=True)
-    #st.image("logo.jpg",width=90000)
+    st.image("logo.jpg")
 
 with col3:
     st.write("")
