@@ -43,7 +43,8 @@ st.markdown("""
 
 a=2
 
-col1, col2,col3 = st.columns([0.5,0.5,2])
+#col1, col2,col3 = st.columns([0.5,0.5,2]) #da usare con timer
+col1, col2,col3 = st.columns([2,0.5,2])
 with col1:
     st.write("")
     st.write("")
