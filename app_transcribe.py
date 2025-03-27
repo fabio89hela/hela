@@ -64,9 +64,25 @@ def download_data():
     # Crea il client CDSAPI per il download
     client = cdsapi.Client()
 
+    # Crea un file temporaneo per salvare i dati
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".nc") as tmpfile:
+        file_path = tmpfile.name
+        print(f"File scaricato in {file_path}")
+    
     # Salva il file nel percorso del file di output
-    file_path = "downloaded_temperature_data.nc"
+    #file_path = "downloaded_temperature_data.nc"
 
+    # Avvia il download
+    try:
+        client.retrieve(dataset, request, file_path)
+        if os.path.exists(file_path):
+            print(f"File scaricato correttamente: {file_path}")
+        else:
+            raise FileNotFoundError(f"Il file non è stato scaricato in {file_path}")
+    except Exception as e:
+        print(f"Errore durante il download del file: {e}")
+        return None
+        
     st.write(f"Download completato: {file_path}")
     return file_path
 
