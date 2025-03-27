@@ -66,7 +66,7 @@ def download_data():
 
     # Salva il file nel percorso del file di output
     file_path = "downloaded_temperature_data.nc"
-    client.retrieve(dataset, request, file_path)
+    #client.retrieve(dataset, request, file_path)
 
     st.write(f"Download completato: {file_path}")
     return file_path
