@@ -17,13 +17,32 @@ def download_data():
     request = {
         "product_type": ["reanalysis"],
         "variable": ["sea_surface_temperature"],
-        "year": ["2024"],
-        "month": ["11"],
-        "day": [str(i).zfill(2) for i in range(1, 31)],
-        "time": [f"{str(i).zfill(2)}:00" for i in range(24)],
+        "year": ["2025"],
+        "month": ["02"],
+        "day": [
+            "01", "02", "03",
+            "04", "05", "06",
+            "07", "08", "09",
+            "10", "11", "12",
+            "13", "14", "15",
+            "16", "17", "18",
+            "19", "20", "21",
+            "22", "23", "24",
+            "25", "26", "27",
+            "28"
+        ],
+        "time": [
+            "00:00", "01:00", "02:00",
+            "03:00", "04:00", "05:00",
+            "06:00", "07:00", "08:00",
+            "09:00", "10:00", "11:00",
+            "12:00", "13:00", "14:00",
+            "15:00", "16:00", "17:00",
+            "18:00", "19:00", "20:00",
+            "21:00", "22:00", "23:00"
+        ],
         "data_format": "netcdf",
-        "download_format": "unarchived",
-        "area": [90, -180, -90, 180]
+        "download_format": "unarchived"
     }
 
     # Crea il client CDSAPI per il download
@@ -114,7 +133,7 @@ url: https://cds.climate.copernicus.eu/api
 key: {api_key}
 verify: 1
 """
-
+    
 # Salva il file nel percorso corretto
 with open(os.path.expanduser("~/.cdsapirc"), "w") as f:
     f.write(cdsapi_config)
