@@ -1,127 +1,136 @@
 import streamlit as st
-import openai
-import base64
-import tempfile
-import os
-import time
-import streamlit.components.v1 as components
-from streamlit_javascript import st_javascript
-import time
+import cdsapi
+import xarray as xr
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
 
-# 🔑 Inserisci la tua API Key di OpenAI
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Funzione per scaricare i dati dal Climate Data Store (CDS)
+def download_data():
+    st.write("Downloading data...")
+    
+    # Imposta i parametri per il download dei dati
+    dataset = "reanalysis-era5-single-levels"
+    request = {
+        "product_type": ["reanalysis"],
+        "variable": ["sea_surface_temperature"],
+        "year": ["2024"],
+        "month": ["11"],
+        "day": [str(i).zfill(2) for i in range(1, 31)],
+        "time": [f"{str(i).zfill(2)}:00" for i in range(24)],
+        "data_format": "netcdf",
+        "download_format": "unarchived",
+        "area": [90, -180, -90, 180]
+    }
 
-st.title("🎙️ Trascrizione Vocale con Whisper")
+    # Crea il client CDSAPI per il download
+    client = cdsapi.Client()
 
-# **JavaScript per la registrazione audio nel browser e salvataggio in `localStorage`**
-audio_recorder_script = """
-<script>
-let mediaRecorder;
-let audioChunks = [];
+    # Salva il file nel percorso del file di output
+    file_path = "downloaded_temperature_data.nc"
+    client.retrieve(dataset, request, file_path)
 
-function startRecording() {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        audioChunks = [];
-        document.getElementById("status").innerText = "🔴 Registrazione in corso...";
+    st.write(f"Download completato: {file_path}")
+    return file_path
+
+# Funzione per caricare e visualizzare i dati
+def load_and_display_data(file_path):
+    st.write("Loading data...")
+
+    # Carica il file NetCDF con xarray
+    dataset = xr.open_dataset(file_path)
+    
+    # Esplora la struttura del dataset
+    st.write("Dataset structure:")
+    st.write(dataset)
+
+    # Estrai i dati di temperatura (assumendo che la variabile si chiami 'sst')
+    temperature_data = dataset['sst']  # Sostituisci 'sst' con il nome corretto della variabile nel tuo dataset
+
+    # Visualizza la temperatura in un grafico
+    st.write("Displaying temperature data...")
+    fig, ax = plt.subplots()
+    temperature_data.isel(time=0).plot(ax=ax)  # Mostra la prima istantanea temporale
+    st.pyplot(fig)
+    
+    return dataset
+
+# Costruisci il modello CNN
+class CNNModel(nn.Module):
+    def __init__(self, input_channels=1, output_size=1):
+        super(CNNModel, self).__init__()
         
-        mediaRecorder.ondataavailable = event => {
-            audioChunks.push(event.data);
-        };
+        # Convolutional Layer
+        self.conv1 = nn.Conv2d(input_channels, 16, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
         
-        document.getElementById("startBtn").disabled = true;
-        document.getElementById("stopBtn").disabled = false;
-    });
-}
+        # Usa un dummy input per calcolare la dimensione dell'output
+        dummy_input = torch.zeros(1, input_channels, 721, 1440)
+        conv_output = self.pool(torch.relu(self.conv1(dummy_input)))
+        conv_out_size = conv_output.view(1, -1).size(1)
 
-function stopRecording() {
-    mediaRecorder.stop();
-    document.getElementById("status").innerText = "⏳ Elaborazione audio...";
+        # Fully connected layers
+        self.fc1 = nn.Linear(conv_out_size, 128)
+        self.fc2 = nn.Linear(128, output_size)
 
-    mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => {
-            const base64data = reader.result.split(',')[1];
-            localStorage.setItem("audio_base64", base64data);
-            localStorage.setItem("audio_timestamp", Date.now()); // Aggiorna timestamp
-            document.getElementById("status").innerText = "✅ Audio salvato!";
-        };
-    };
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))  # Convolution + Pooling
+        x = x.view(x.size(0), -1)  # Flatten the tensor
+        x = torch.relu(self.fc1(x))  # Fully connected layer
+        x = self.fc2(x)  # Output layer
+        return x
 
-    document.getElementById("startBtn").disabled = false;
-    document.getElementById("stopBtn").disabled = true;
-}
-</script>
+# Funzione di allenamento
+def train_model(model, train_loader, num_epochs=10):
+    criterion = nn.L1Loss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-<button onclick="startRecording()" id="startBtn">🎤 Avvia Registrazione</button>
-<button onclick="stopRecording()" id="stopBtn" disabled>⏹️ Stop Registrazione</button>
-<p id="status">⏳ Pronto a registrare...</p>
-"""
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+        for inputs, labels in train_loader:
+            if inputs.dim() == 5:
+                inputs = inputs.squeeze(2)
+                
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-# **Mostra il registratore in Streamlit**
-components.html(audio_recorder_script, height=300)
+            running_loss += loss.item()
 
-# **Funzione per leggere `localStorage` in Streamlit**
-def get_javascript_value(js_code, key):
-    """Esegue un comando JavaScript e ottiene il valore di ritorno"""
-    components.html(
-        f"""
-        <script>
-        var value = {js_code};
-        var streamlitTextArea = parent.document.querySelector('textarea');
-        streamlitTextArea.value = value;
-        streamlitTextArea.dispatchEvent(new Event("input", {{ bubbles: true }}));
-        </script>
-        """,
-        height=0,
-    )
-    return st.text_area("📥 Dati Audio (Base64)", key=key, height=100)
+        st.write(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader)}')
 
-# **Controlliamo continuamente se `localStorage` è stato aggiornato**
-prev_timestamp = st.session_state.get("prev_timestamp", str(int(time.time() * 1000)))
+# Streamlit UI
+def main():
+    st.title("Sea Surface Temperature Prediction using CNN")
+    
+    st.sidebar.title("Options")
+    data_option = st.sidebar.selectbox("Choose an option", ["Download and Train", "Load Existing Data"])
+    
+    if data_option == "Download and Train":
+        file_path = download_data()
+        dataset = load_and_display_data(file_path)
+    else:
+        uploaded_file = st.sidebar.file_uploader("Upload a NetCDF file", type=["nc"])
+        if uploaded_file is not None:
+            file_path = "uploaded_temperature_data.nc"
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            dataset = load_and_display_data(file_path)
 
-i=0
-if 1>0:
-    while True:
-        i=i+1
-        timestamp = get_javascript_value("localStorage.getItem('audio_timestamp');", "audio_timestamp"+str(i))
-        st.write("----")
-        st.write(timestamp)
-        st.write("----")
-        st.write(prev_timestamp)
-        if timestamp and timestamp > prev_timestamp:
-            st.write("Qui")
-            # **Se il timestamp è aggiornato, leggiamo l'audio Base64**
-            audio_data = get_javascript_value("localStorage.getItem('audio_base64');", "audio_base64"+str(i))
-            st.write(audio_data)
-            st.session_state["prev_timestamp"] = int(timestamp)
-            break
-        time.sleep(1)
+    st.write("Model Training")
+    if st.button("Start Training"):
+        model = CNNModel()
+        # Preparare i dati per il training
+        # Qui dovresti includere il codice per creare un DataLoader e addestrare il modello
+        # Per esempio, puoi caricare un dataset fittizio per addestrare il modello
+        train_loader = None  # Assicurati di impostare il train_loader correttamente
+        train_model(model, train_loader, num_epochs=10)
+        st.write("Training Completed!")
 
-# **Se abbiamo ricevuto l'audio, procediamo alla trascrizione**
-if "audio_base64" in st.session_state:
-    audio_data = st.session_state["audio_base64"]
-    st.success("🎙️ Audio ricevuto! Trascrizione in corso...")
-
-    # **Salviamo l'audio in un file temporaneo**
-    audio_bytes = base64.b64decode(audio_data)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-        temp_audio_file.write(audio_bytes)
-        audio_path = temp_audio_file.name
-
-    # **Mostrare l’audio registrato**
-    st.audio(audio_path, format="audio/wav")
-
-    # **Trascrivere con Whisper**
-    with open(audio_path, "rb") as audio_file:
-        transcript = openai.Audio.transcribe("whisper-1", audio_file)
-
-    # **Mostrare la trascrizione**
-    st.subheader("📝 Trascrizione:")
-    st.write(transcript["text"])
-
-    # **Eliminare il file temporaneo**
-    os.remove(audio_path)
+if __name__ == "__main__":
+    main()
