@@ -10,8 +10,24 @@ import os
 
 # Funzione per scaricare i dati dal Climate Data Store (CDS)
 def download_data():
-    st.write("Downloading data...")
+    # Imposta la tua chiave API
+    api_key = "tua_chiave_api"  # Sostituisci con la tua chiave API
+
+    # Crea il file .cdsapirc
+    cdsapi_config = f"""
+    url: https://cds.climate.copernicus.eu/api
+    key: {api_key}
+    verify: 1
+    """
     
+    # Salva il file nel percorso corretto
+    with open(os.path.expanduser("~/.cdsapirc"), "w") as f:
+        f.write(cdsapi_config)
+
+    st.write("File .cdsapirc creato con successo!")
+
+    st.write("Downloading data...")
+
     # Imposta i parametri per il download dei dati
     dataset = "reanalysis-era5-single-levels"
     request = {
@@ -123,22 +139,6 @@ def train_model(model, train_loader, num_epochs=10):
             running_loss += loss.item()
 
         st.write(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader)}')
-
-# Imposta la tua chiave API
-api_key = "tua_chiave_api"  # Sostituisci con la tua chiave API
-
-# Crea il file .cdsapirc
-cdsapi_config = f"""
-url: https://cds.climate.copernicus.eu/api
-key: {api_key}
-verify: 1
-"""
-    
-# Salva il file nel percorso corretto
-with open(os.path.expanduser("~/.cdsapirc"), "w") as f:
-    f.write(cdsapi_config)
-
-print("File .cdsapirc creato con successo!")
 
 
 # Streamlit UI
