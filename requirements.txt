@@ -14,5 +14,5 @@ gspread
 streamlit-javascript
 torch
 xarray
-cdsapi
+cdsapi>=0.7.4
 matplotlib
