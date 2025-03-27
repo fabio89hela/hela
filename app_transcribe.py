@@ -11,7 +11,7 @@ import os
 # Funzione per scaricare i dati dal Climate Data Store (CDS)
 def download_data():
     # Imposta la tua chiave API
-    api_key = "tua_chiave_api"  # Sostituisci con la tua chiave API
+    api_key = os.getenv('cdsapi_api_key')  
 
     # Crea il file .cdsapirc
     cdsapi_config = f"""
