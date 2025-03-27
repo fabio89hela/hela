@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import tempfile
+import netCDF4
 
 # Funzione per scaricare i dati dal Climate Data Store (CDS)
 def download_data():
@@ -92,7 +93,7 @@ def load_and_display_data(file_path):
     st.write("Loading data...")
 
     # Carica il file NetCDF con xarray
-    dataset = xr.open_dataset(file_path)
+    dataset = xr.open_dataset(file_path,engine="netcdf4")
     
     # Esplora la struttura del dataset
     st.write("Dataset structure:")
