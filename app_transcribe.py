@@ -110,7 +110,7 @@ api_key = "tua_chiave_api"  # Sostituisci con la tua chiave API
 
 # Crea il file .cdsapirc
 cdsapi_config = f"""
-url: https://cds.climate.copernicus.eu/api/v2
+url: https://cds.climate.copernicus.eu/api
 key: {api_key}
 verify: 1
 """
