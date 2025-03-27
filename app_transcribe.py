@@ -7,6 +7,7 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import tempfile
 
 # Funzione per scaricare i dati dal Climate Data Store (CDS)
 def download_data():
