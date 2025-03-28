@@ -45,7 +45,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=4
+a=0
 
 col1, col2,col3 = st.columns([2,0.5,2]) #da usare con game
 with col1:
@@ -63,7 +63,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=634-a56cc3d28c8361f192995fe925fc7f92")
+        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=656-3e11af3f9636198cc50d61d1b4df13d2")
     elif a==1: #nuoto
         st.write("")
         st.write("")
@@ -71,7 +71,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Nuoto", "https://game.helaglobe.com/main//game?game=635-f0ce36416abefe671629ae5bcf31d1b2")
+        st.link_button("Nuoto", "https://game.helaglobe.com/main//game?game=657-555d0f36e7d70cdbd27c38bd97367ae6")
     elif a==2: #ciclismo
         st.write("")
         st.write("")
