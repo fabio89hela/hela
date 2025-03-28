@@ -63,14 +63,14 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=658-09e6ef10f5a461715547d53928f6c4d0")
+        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=663-310679a7e4ef6c320734c1ff1972d769")
     elif a==1: #nuoto
         st.write("")
         st.write("")
         st.write("")
         st.write("")
         st.write("")
-        st.write("")
+        st.write("") 
         st.link_button("Nuoto", "https://game.helaglobe.com/main//game?game=662-e68be146c4017c3e88f9a841e142e105")
     elif a==2: #ciclismo
         st.write("")
@@ -79,7 +79,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=660-9ad0bb3b6d1492944008acb07c5c0a39")
+        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=664-b4c873aafe962e3957b1987601b9f342")
     elif a==3: #corsa
         st.write("")
         st.write("")
