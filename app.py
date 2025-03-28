@@ -63,7 +63,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=656-3e11af3f9636198cc50d61d1b4df13d2")
+        st.link_button("Riscaldamento", "https://game.helaglobe.com/main//game?game=658-09e6ef10f5a461715547d53928f6c4d0")
     elif a==1: #nuoto
         st.write("")
         st.write("")
@@ -71,7 +71,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Nuoto", "https://game.helaglobe.com/main//game?game=657-555d0f36e7d70cdbd27c38bd97367ae6")
+        st.link_button("Nuoto", "https://game.helaglobe.com/main//game?game=662-e68be146c4017c3e88f9a841e142e105")
     elif a==2: #ciclismo
         st.write("")
         st.write("")
@@ -79,7 +79,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=639-1cebeab015b906a88198e4c50a3e3d65")
+        st.link_button("Ciclismo", "https://game.helaglobe.com/main//game?game=660-9ad0bb3b6d1492944008acb07c5c0a39")
     elif a==3: #corsa
         st.write("")
         st.write("")
@@ -87,7 +87,7 @@ with col3:
         st.write("")
         st.write("")
         st.write("")
-        st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=638-79c7f99522da888c5e008006d2dd3680", disabled=True)
+        st.link_button("Corsa", "https://game.helaglobe.com/main//game?game=659-79a59a5060a0ff12333b8993dc0c1cf3")
 if a==4: #timer
         # Inizializza Firebase utilizzando i secrets di Streamlit
         if not firebase_admin._apps:
