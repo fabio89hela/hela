@@ -45,7 +45,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-a=2 
+a=3
 
 col1, col2,col3 = st.columns([2,0.5,2]) #da usare con game
 with col1:
